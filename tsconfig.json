@@ -17,7 +17,11 @@
         "resolveJsonModule": true,
         "skipLibCheck": true,
         "strict": true,
-        "target": "esnext"
+        "target": "esnext",
+        "baseUrl": ".",
+        "paths": {
+            "@/*": ["./*"]
+          }
     },
     "exclude": [
         "node_modules"
