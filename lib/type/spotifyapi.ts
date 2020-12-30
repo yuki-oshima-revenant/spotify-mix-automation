@@ -1,6 +1,6 @@
 type TrackItem = {
     album: { href: string, name: string, images: { url: string }[] },
-    artists: { href: string, name: string },
+    artists: { href: string, name: string }[],
     href: string,
     id: string,
     name: string,

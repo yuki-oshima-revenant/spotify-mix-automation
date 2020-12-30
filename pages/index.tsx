@@ -1,95 +1,86 @@
 import { useCallback, useEffect, useState, useRef } from 'react';
 import { GetStaticProps, InferGetStaticPropsType } from 'next';
+
+import Div100vh from 'react-div-100vh'
+import styles from '@/styles/index.module.less';
 import useSearchTracksApi from '@/lib/hook/useSearchTracksApi';
-import useRecommendTracksApi from '@/lib/hook/useRecommendTracksApi';
+import { AiFillGithub } from "react-icons/ai";
+import { FaSpotify } from "react-icons/fa";
 import useLoginApi from '@/lib/hook/useLoginApi';
-import { AudioFeature } from '@/lib/type/spotifyapi';
-import axios from 'axios';
-import { RequestBody, ResponseBody } from '@/pages/api/playlist/save';
+
 
 const Index = ({ loginPath }: InferGetStaticPropsType<typeof getStaticProps>) => {
-    const [query, setQuery] = useState<string[]>([]);
-    const [targetTrack, setTargetTrack] = useState<AudioFeature>();
-    const { data: searchData, isValidating: searchLoading, mutate: searchMutate } = useSearchTracksApi({ query });
-    const { data: recommendData, isValidating: recommendLoading, mutate: recommendMutate } = useRecommendTracksApi(targetTrack ? { audioFeature: targetTrack } : undefined);
     const { data: loginData } = useLoginApi();
-    const playerRef = useRef<Spotify.SpotifyPlayer | null>(null);
-    const [deviceId, setDeviceId] = useState<string>();
-
+    const [query, setQuery] = useState<string[]>([]);
+    const { data: searchData, isValidating: searchLoading, mutate: searchMutate } = useSearchTracksApi({ query });
     const login = useCallback(() => {
         window.location.href = loginPath;
     }, [loginPath]);
 
     useEffect(() => {
-        recommendMutate();
-    }, [targetTrack]);
-
-    useEffect(() => {
-        if (loginData && loginData.accessToken) {
-            window.onSpotifyWebPlaybackSDKReady = () => {
-                const player = new Spotify.Player({
-                    name: 'Web Playback SDK Quick Start Player',
-                    getOAuthToken: async (cb) => {
-                        cb(loginData.accessToken as string);
-                    },
-                    volume: 0.5
-                });
-                player.addListener('ready', ({ device_id }) => {
-                    setDeviceId(device_id);
-                });
-                player.connect();
-            };
-            if (!window.Spotify) {
-                const scriptTag = document.createElement('script');
-                scriptTag.src = 'https://sdk.scdn.co/spotify-player.js';
-                document.head!.appendChild(scriptTag);
-            }
-        }
-    }, [loginData]);
+        searchMutate();
+    }, [query]);
 
     return (
         <div>
-            <div>
-                <button onClick={login}>
-                    ログイン
-            </button>
-            </div>
-            <div>
-                <input onChange={(e) => { setQuery(e.target.value.replace(/　/g, ' ').split(' ')) }} />
-                <button onClick={() => searchMutate()}>検索</button>
-            </div>
-            <div>
-                {(searchData) && searchData.tracks.map((track) => (
-                    <div key={track.id}>
-                        <img
-                            src={track.album.images[1].url}
-                            onClick={() => {
-                                setTargetTrack(track.audioFeatures);
-                                axios.post('/api/track/play',
-                                    {
-                                        deviceId,
-                                        uris: [track.uri]
-                                    })
-                            }}
-                        />
+            <header className={styles.headerTop}>
+                <div className={styles.content}>
+                    <div className={styles.logo}>AUTOMISCE</div>
+                    <div className={styles.spacer} />
+                    <a
+                        className={styles.iconWrapper}
+                        href="https://github.com/yuki-oshima-revenant/spotify-mix-automation"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        <AiFillGithub className={styles.icon} />
+                    </a>
+                </div>
+            </header>
+            <Div100vh className={styles.contentWrapper}>
+                <div className={styles.content}>
+                    <div className={styles.titleContainer}>
+                        <h1 className={styles.title}>
+                            Automate Your Mix<br />
+                        </h1>
+                        <h2 className={styles.lowerTitle}>
+                            with <span className={styles.spotify}>Spotify</span> API.
+                    </h2>
                     </div>
-                ))}
-            </div>
-            <div>
-                <button onClick={() => {
-                    const param: RequestBody = {
-                        name: 'test_playlist',
-                        uris: ['spotify:track:0FdLomnIVFfeF0XUC9WWoC'],
-                        isPublic: false
-                    }
-                    axios.post<RequestBody, ResponseBody>('/api/playlist/save', param);
-                }}>
-                    new playlist
-                </button>
-            </div>
+                    <div className={styles.signin}>
+                        <button className={styles.button} onClick={login}>
+                            <FaSpotify className={styles.icon} />
+                            Sign in with Spotify
+                    </button>
+                    </div>
+                    <div className={styles.mainContainer}>
+                        <div className={styles.searchCard}>
+                            <div>
+                                <input onChange={(e) => { setQuery(e.target.value.replace(/　/g, ' ').split(' ')) }} />
+                            </div>
+                            <div>
+                                {searchData && searchData.tracks.map((track) => {
+                                    return (
+                                        <div key={track.id}>
+                                            <div>{track.artists.map((artist) => artist.name).join(', ')}</div>
+                                            <div>{track.name}</div>
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                        </div>
+                        <div className={styles.playlistCard}>
+
+                        </div>
+                    </div>
+                </div>
+                <footer className={styles.footer}>© 2021 Yuki Oshima</footer>
+            </Div100vh>
         </div>
     );
 }
+
+
 
 export const getStaticProps: GetStaticProps = async () => {
     const scopes = ['streaming', 'user-read-email', 'user-read-private', 'playlist-modify-public', 'playlist-modify-private'];

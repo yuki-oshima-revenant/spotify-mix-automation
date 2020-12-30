@@ -1,0 +1,114 @@
+@header-height: 48px;
+
+.spotifyColor(){
+    color: #1db954;
+}
+
+.header(){
+    position: fixed;
+    height: @header-height;
+    top: 0;
+    width: 100%;
+    display: flex;
+    z-index:1000;
+    backdrop-filter: blur(12px);
+
+    .logo{
+        font-size: 20px;
+        font-family: 'Oswald', sans-serif;
+        font-weight: 500;
+        letter-spacing: -0.03em;
+        pointer-events: none;
+
+    }
+    .content{
+        display: flex;
+        margin:auto 0;
+        width: 100%;
+        padding: 0 24px;
+        .spacer{
+            flex-grow: 1;
+        }
+        .iconWrapper{
+            height: 20px;
+            margin:auto 0;
+            .icon{
+                font-size: 20px;
+                vertical-align: text-bottom;
+            }
+        }
+    }
+}
+.headerTop{
+    .header();
+}
+.headerScrolled{
+    .header();
+    box-shadow: 0 2px 8px 0 rgba(0,0,0,0.1);
+
+}
+.contentWrapper{
+    display: flex;
+    flex-direction: column;
+    .content{
+        flex: 1;
+        .spotify{
+            .spotifyColor();
+        }
+        padding: @header-height 24px 24px 24px;
+        .titleContainer{
+            text-align: center;
+            .title{
+                font-size: 64px;
+                font-weight: 700;
+                letter-spacing: -0.06em;
+                margin-bottom: 24px;
+            }
+            .lowerTitle{
+                font-size: 40px;
+                font-weight: 700;
+                letter-spacing: -0.04em;
+                margin-top: 24px;
+            }
+        }
+        .signin{
+            text-align: center;
+            margin-top: 48px;
+            .button{
+                .icon{
+                    .spotifyColor();
+                    vertical-align: text-bottom;
+                    margin-right: 4px;
+    
+                }
+                font-size: 16px;
+                padding: 12px 32px;
+                border:0;
+                background-color: white;
+                box-shadow: 0 4px 14px 0 rgba(0,0,0,0.1);
+                border-radius: 8px;
+                height: 48px;
+                cursor: pointer;
+            }
+        }
+        .mainContainer{
+            display: flex;
+            margin-top: 32px;
+            justify-content: space-around;
+            .searchCard{
+                border:1px solid #f0f0f0;
+                width: 560px;
+            }
+            .playlistCard{
+                border:1px solid #f0f0f0;
+                width: 560px;
+            }
+        }
+    }
+    .footer{
+        padding:16px;
+        font-size: 14px;
+        height: 48px;
+        text-align: center;
+    }
+}

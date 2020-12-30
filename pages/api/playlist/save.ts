@@ -24,11 +24,11 @@ const playTrack: ApiHandler<RequestBody, ResponseBody> = async (req, res) => {
                         'Authorization': `Bearer ${accessToken}`
                     }
                 }
-            );                   
+            );
         }
-
+        const createdPlayListId = playListId || createResponse?.data.id;
         await axios.put(
-            `https://api.spotify.com/v1/playlists/${playListId || createResponse?.data.id}/tracks`,
+            `https://api.spotify.com/v1/playlists/${createdPlayListId}/tracks`,
             { uris },
             {
                 headers: {
@@ -38,7 +38,7 @@ const playTrack: ApiHandler<RequestBody, ResponseBody> = async (req, res) => {
             }
         );
 
-        res.status(200).json({ playListId });
+        res.status(200).json({ playListId: createdPlayListId });
     } catch (e) {
         res.status(500).send(e.message);
     }
