@@ -1,21 +1,16 @@
 import useSWR from 'swr';
 import axios from 'axios';
-import { SearchTracksResponse, AudioFeature } from '@/lib/type/spotifyapi';
-import { useEffect } from 'react';
+import { AudioFeature } from '@/lib/type/spotifyapi';
+import { RequestBody, ResponseBody } from '@/pages/api/track/recommend';
 
 const fetcher = (url: string, audioFeature: AudioFeature) => axios.post(url, { audioFeature }).then(res => res.data);
 
-const useRecommendTracksApi = (param: { audioFeature?: AudioFeature }) => {
-    const { audioFeature } = param;
-    const { data, error, isValidating, mutate } = useSWR<SearchTracksResponse>(
-        audioFeature ? ['/api/track/recommend', audioFeature] : null,
+const useRecommendTracksApi = (param?: RequestBody) => {
+    const { data, error, isValidating, mutate } = useSWR<ResponseBody>(
+        param ? ['/api/track/recommend', param?.audioFeature] : null,
         fetcher,
-        { initialData: [], shouldRetryOnError: false }
+        { initialData: { upperTracks: [], downerTracks: [] }, shouldRetryOnError: false }
     );
-
-    // useEffect(()=>{
-    //     mutate();
-    // },[param]);
 
     return { data, isValidating, mutate }
 }

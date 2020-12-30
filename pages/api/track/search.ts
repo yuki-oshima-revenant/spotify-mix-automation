@@ -4,10 +4,14 @@ import withSession from '@/lib/middleware/session';
 import { SpotifySearchApiResponse, SearchTracksResponse } from '@/lib/type/spotifyapi';
 import getAudioFeatures from '@/lib/util/getAudioFeatures';
 
-const searchTracks: ApiHandler = async (req, res) => {
+export interface RequestBody { query: string[] }
+
+export interface ResponseBody { tracks: SearchTracksResponse }
+
+const searchTracks: ApiHandler<RequestBody, ResponseBody> = async (req, res) => {
     try {
         const query = req.body.query as string[];
-        const accessToken = req.session.get('token').accessToken;
+        const accessToken = req.session.get('user').accessToken;
 
         const searchParams = new URLSearchParams();
         searchParams.append('q', encodeURIComponent(query.join(' ')));
@@ -28,7 +32,8 @@ const searchTracks: ApiHandler = async (req, res) => {
             const targetItemFeature = audioFeatures.find((feature) => (feature.id === item.id));
             return { ...item, audioFeatures: targetItemFeature };
         });
-        res.status(200).json(response);
+        res.status(200)
+        res.json({ tracks: response });
     } catch (e) {
         res.status(500).send(e.message);
     }

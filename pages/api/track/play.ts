@@ -2,10 +2,12 @@ import { ApiHandler } from '@/lib/type/handler';
 import axios from 'axios';
 import withSession from '@/lib/middleware/session';
 
-const playTrack: ApiHandler = async (req, res) => {
+export interface RequestBody { deviceId: string, uris: string[] }
+
+const playTrack: ApiHandler<RequestBody, {}> = async (req, res) => {
     try {
-        const {deviceId, uris} = req.body;
-        const accessToken = req.session.get('token').accessToken;
+        const { deviceId, uris } = req.body;
+        const accessToken = req.session.get('user').accessToken;
 
         const playParams = new URLSearchParams();
         playParams.append('device_id', deviceId);

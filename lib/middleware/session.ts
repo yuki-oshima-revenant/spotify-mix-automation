@@ -1,7 +1,6 @@
-import { withIronSession } from "next-iron-session";
-import { ApiHandler } from '@/lib/type/handler';
+import { withIronSession, Handler } from "next-iron-session";
 
-const withSession = (handler: ApiHandler) => {
+const withSession = (handler: Handler) => {
     return withIronSession(handler, {
         cookieName: 'app_session',
         password: `${process.env.CLIENT_ID}:${process.env.CLIENT_SECRET}`,

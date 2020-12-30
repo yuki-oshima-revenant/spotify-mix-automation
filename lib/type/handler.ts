@@ -1,11 +1,13 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 interface SessionContent {
+    userId: string,
     accessToken: string
     refreshToken: string,
 }
 
-interface Request extends NextApiRequest {
+interface Request<T> extends NextApiRequest {
+    body: T,
     session: {
         set: (
             name: string,
@@ -16,4 +18,8 @@ interface Request extends NextApiRequest {
     }
 }
 
-export type ApiHandler = (req: Request, res: NextApiResponse) => Promise<void> | void;
+interface Response<U> extends NextApiResponse {
+    json: (param: U) => void
+}
+
+export type ApiHandler<T, U> = (req: Request<T>, res: Response<U>) => Promise<void> | void;

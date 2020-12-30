@@ -34,11 +34,17 @@ const getRecommendTracks = async (audioFeature: AudioFeature, accessToken: strin
     });
 };
 
+export interface RequestBody { audioFeature: AudioFeature }
 
-const recommendedTracks: ApiHandler = async (req, res) => {
+export interface ResponseBody {
+    upperTracks: SearchTracksResponse,
+    downerTracks: SearchTracksResponse
+}
+
+const recommendedTracks: ApiHandler<RequestBody, ResponseBody> = async (req, res) => {
     try {
         const audioFeature = req.body.audioFeature as AudioFeature;
-        const accessToken = req.session.get('token').accessToken;
+        const accessToken = req.session.get('user').accessToken;
 
         const [upperTracks, downerTracks] = await Promise.all(
             [
@@ -47,7 +53,8 @@ const recommendedTracks: ApiHandler = async (req, res) => {
             ]
         );
 
-        res.status(200).json({
+        res.status(200)
+        res.json({
             upperTracks,
             downerTracks
         });

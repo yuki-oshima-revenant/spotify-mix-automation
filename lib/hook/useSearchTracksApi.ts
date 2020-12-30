@@ -1,14 +1,14 @@
 import useSWR from 'swr';
 import axios from 'axios';
-import { SearchTracksResponse } from '@/lib/type/spotifyapi';
+import { RequestBody, ResponseBody } from '@/pages/api/track/search';
 
 const fetcher = (url: string, query: string[]) => axios.post(url, { query }).then(res => res.data);
-const useSearchTracksApi = (param: { query?: string[] }) => {
+const useSearchTracksApi = (param: RequestBody) => {
     const { query } = param;
-    const { data, error, isValidating, mutate } = useSWR<SearchTracksResponse>(
-        query ? ['/api/track/search', query] : null,
+    const { data, error, isValidating, mutate } = useSWR<ResponseBody>(
+        query.length > 0 ? ['/api/track/search', query] : null,
         fetcher,
-        { initialData: [], shouldRetryOnError: false }
+        { initialData: { tracks: [] }, shouldRetryOnError: false }
     );
     return { data, isValidating, mutate }
 }

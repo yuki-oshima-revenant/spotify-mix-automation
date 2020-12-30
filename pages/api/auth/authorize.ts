@@ -10,7 +10,13 @@ interface SpotifyApiResponse {
     refresh_token: string
 }
 
-const authorize: ApiHandler = async (req, res) => {
+interface SpotifyUserResponse {
+    country: string,
+    display_name: string,
+    id: string,
+}
+
+const authorize: ApiHandler<{}, {}> = async (req, res) => {
     try {
         const { code, state } = req.query;
 
@@ -30,7 +36,17 @@ const authorize: ApiHandler = async (req, res) => {
                 }
             }
         );
-        req.session.set('token', {
+        const userResponse = await axios.get<SpotifyUserResponse>(
+            `https://api.spotify.com/v1/me`,
+            {
+                headers: {
+                    'Authorization': `Bearer ${response.data.access_token}`
+                }
+            }
+        );
+
+        req.session.set('user', {
+            userId: userResponse.data.id,
             accessToken: response.data.access_token,
             refreshToken: response.data.refresh_token,
         });
