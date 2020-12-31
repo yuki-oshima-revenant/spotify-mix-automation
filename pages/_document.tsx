@@ -6,7 +6,6 @@ class MyDocument extends Document {
         return (
             <Html>
                 <Head />
-                {/* <script src="https://sdk.scdn.co/spotify-player.js"></script> */}
                 <body>
                     <Main />
                     <NextScript />

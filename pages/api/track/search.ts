@@ -14,7 +14,7 @@ const searchTracks: ApiHandler<RequestBody, ResponseBody> = async (req, res) => 
         const accessToken = req.session.get('user').accessToken;
 
         const searchParams = new URLSearchParams();
-        searchParams.append('q', encodeURIComponent(query.join(' ')));
+        searchParams.append('q', query.join(' '));
         searchParams.append('type', 'track');
         const searchResponse = await axios.get<SpotifySearchApiResponse>(
             `https://api.spotify.com/v1/search?${searchParams.toString()}`,
@@ -24,7 +24,7 @@ const searchTracks: ApiHandler<RequestBody, ResponseBody> = async (req, res) => 
                     'Authorization': `Bearer ${accessToken}`
                 }
             }
-        );
+        );        
 
         const audioFeatures = await getAudioFeatures(searchResponse.data.tracks.items.map((item => item.id)), accessToken);
 

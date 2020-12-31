@@ -1,8 +1,5 @@
-@header-height: 48px;
+@import './theme.less';
 
-.spotifyColor(){
-    color: #1db954;
-}
 
 .header(){
     position: fixed;
@@ -53,7 +50,7 @@
     .content{
         flex: 1;
         .spotify{
-            .spotifyColor();
+            color:@spotify-color;
         }
         padding: @header-height 24px 24px 24px;
         .titleContainer{
@@ -76,7 +73,7 @@
             margin-top: 48px;
             .button{
                 .icon{
-                    .spotifyColor();
+                    color:@spotify-color;
                     vertical-align: text-bottom;
                     margin-right: 4px;
     
@@ -89,26 +86,94 @@
                 border-radius: 8px;
                 height: 48px;
                 cursor: pointer;
+                &:focus{
+                    outline:0;
+                }
             }
         }
         .mainContainer{
             display: flex;
             margin-top: 32px;
-            justify-content: space-around;
+            justify-content: center;
+            color:@text-color;
             .searchCard{
-                border:1px solid #f0f0f0;
+                border: @border-base;
+                border-radius: 4px;
                 width: 560px;
+                .searchResultContainer{
+                    padding:16px;
+                    .trackCard{
+                        border-bottom: @border-base;
+                        display: flex;
+                        .cover{
+                            margin-right: 8px;
+                            height: 80px;
+                        }
+                        .description{
+                            padding: 8px;
+                            .name{
+                                display: inline-block;
+                                text-overflow: ellipsis;
+                                white-space: nowrap;
+                                overflow: hidden;
+                                width: 360px;
+                                font-weight: 600;
+                            }
+                            .artist{
+                                display: inline-block;
+                                text-overflow: ellipsis;
+                                white-space: nowrap;
+                                overflow: hidden;
+                                width: 360px;
+                                font-size: 14px;
+                            }
+                            .params{
+                                font-size: 12px;
+                                display: flex;
+                                div{
+                                    margin-right: 8px;
+                                }
+                            }
+                        }
+                        .buttonWrap{
+                            display: flex;
+                            margin-right: 8px;
+                            .button{
+                                font-size: 24px;
+                                margin: auto;
+                                cursor: pointer;
+                            }
+                        }
+                    }
+                }
             }
             .playlistCard{
-                border:1px solid #f0f0f0;
+                border: @border-base;
                 width: 560px;
             }
         }
     }
     .footer{
+        color:@text-color;
         padding:16px;
         font-size: 14px;
         height: 48px;
         text-align: center;
+    }
+}
+
+.inputContainer{
+    padding:16px;
+    .input{
+        height: 32px;
+        border: 0;
+        border-bottom: 2px solid @border-color;
+        font-size: 16px;
+        padding:8px;
+        color:@text-color;
+        &:focus{
+            outline:0;
+            border-bottom: 2px solid @theme-color;
+        }
     }
 }

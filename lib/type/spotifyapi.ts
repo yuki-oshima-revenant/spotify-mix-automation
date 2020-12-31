@@ -1,5 +1,5 @@
 type TrackItem = {
-    album: { href: string, name: string, images: { url: string }[] },
+    album: { href: string, name: string, images: { url: string, height: number }[] },
     artists: { href: string, name: string }[],
     href: string,
     id: string,
@@ -35,7 +35,7 @@ export type SpotifyFeaturesApiResponse = {
     audio_features: AudioFeature[]
 }
 
-type SearchTracksRecord = TrackItem & {
+export type SearchTracksRecord = TrackItem & {
     audioFeatures?: AudioFeature
 }
 

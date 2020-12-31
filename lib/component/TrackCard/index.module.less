@@ -1,0 +1,45 @@
+@import '@/styles/theme.less';
+
+
+.trackCard{
+    border-bottom: @border-base;
+    display: flex;
+    .cover{
+        margin-right: 8px;
+    }
+    .description{
+        padding: 8px;
+        .name{
+            display: inline-block;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+            width: 360px;
+            font-weight: 600;
+        }
+        .artist{
+            display: inline-block;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+            width: 360px;
+            font-size: 14px;
+        }
+        .params{
+            font-size: 12px;
+            display: flex;
+            div{
+                margin-right: 8px;
+            }
+        }
+    }
+    .buttonWrap{
+        display: flex;
+        margin-right: 8px;
+        .button{
+            font-size: 24px;
+            margin: auto;
+            cursor: pointer;
+        }
+    }
+}

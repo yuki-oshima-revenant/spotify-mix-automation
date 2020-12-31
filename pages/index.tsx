@@ -1,18 +1,26 @@
 import { useCallback, useEffect, useState, useRef } from 'react';
 import { GetStaticProps, InferGetStaticPropsType } from 'next';
-
 import Div100vh from 'react-div-100vh'
 import styles from '@/styles/index.module.less';
 import useSearchTracksApi from '@/lib/hook/useSearchTracksApi';
 import { AiFillGithub } from "react-icons/ai";
 import { FaSpotify } from "react-icons/fa";
 import useLoginApi from '@/lib/hook/useLoginApi';
-
+import { SearchTracksRecord } from '@/lib/type/spotifyapi';
+import TrackCard from '@/lib/component/TrackCard';
+import moment from 'moment';
 
 const Index = ({ loginPath }: InferGetStaticPropsType<typeof getStaticProps>) => {
     const { data: loginData } = useLoginApi();
     const [query, setQuery] = useState<string[]>([]);
     const { data: searchData, isValidating: searchLoading, mutate: searchMutate } = useSearchTracksApi({ query });
+    const playerRef = useRef<Spotify.SpotifyPlayer | null>(null);
+    const [playingTrack, setPlayingTrack] = useState<SearchTracksRecord>();
+    const [isPlaying, setIsPlaying] = useState<boolean>(false);
+    const [deviceId, setDeviceId] = useState<string>();
+    const [playlistName, setPlaylistName] = useState<string>(`NewPlaylist_${moment().format('YYYYMMDD')}`);
+    const [playlistContent, setPlaylistContent] = useState<SearchTracksRecord[]>([]);
+
     const login = useCallback(() => {
         window.location.href = loginPath;
     }, [loginPath]);
@@ -20,6 +28,30 @@ const Index = ({ loginPath }: InferGetStaticPropsType<typeof getStaticProps>) =>
     useEffect(() => {
         searchMutate();
     }, [query]);
+
+    useEffect(() => {
+        if (loginData && loginData.accessToken) {
+            window.onSpotifyWebPlaybackSDKReady = () => {
+                const player = new Spotify.Player({
+                    name: 'Web Playback SDK Quick Start Player',
+                    getOAuthToken: async (cb) => {
+                        cb(loginData.accessToken as string);
+                    },
+                    volume: 0.5
+                });
+                player.addListener('ready', ({ device_id }) => {
+                    setDeviceId(device_id);
+                });
+                player.connect();
+                playerRef.current = player;
+            };
+            if (!window.Spotify) {
+                const scriptTag = document.createElement('script');
+                scriptTag.src = 'https://sdk.scdn.co/spotify-player.js';
+                document.head!.appendChild(scriptTag);
+            }
+        }
+    }, [loginData]);
 
     return (
         <div>
@@ -55,28 +87,65 @@ const Index = ({ loginPath }: InferGetStaticPropsType<typeof getStaticProps>) =>
                     </div>
                     <div className={styles.mainContainer}>
                         <div className={styles.searchCard}>
-                            <div>
-                                <input onChange={(e) => { setQuery(e.target.value.replace(/　/g, ' ').split(' ')) }} />
+                            <div className={styles.inputContainer}>
+                                <input
+                                    className={styles.input}
+                                    placeholder="Search Tracks"
+                                    onChange={(e) => { setQuery(e.target.value.replace(/　/g, ' ').split(' ')) }}
+                                />
                             </div>
-                            <div>
+                            <div className={styles.searchResultContainer}>
                                 {searchData && searchData.tracks.map((track) => {
                                     return (
-                                        <div key={track.id}>
-                                            <div>{track.artists.map((artist) => artist.name).join(', ')}</div>
-                                            <div>{track.name}</div>
-                                        </div>
+                                        <TrackCard
+                                            track={track}
+                                            isPlaying={isPlaying}
+                                            setIsPlaying={setIsPlaying}
+                                            playingTrack={playingTrack}
+                                            setPlayingTrack={setPlayingTrack}
+                                            playerRef={playerRef}
+                                            deviceId={deviceId}
+                                            inPlaylist={false}
+                                            playlistContent={playlistContent}
+                                            setPlaylistContent={setPlaylistContent}
+                                        />
                                     )
                                 })}
                             </div>
                         </div>
                         <div className={styles.playlistCard}>
-
+                            <div className={styles.inputContainer}>
+                                <input
+                                    className={styles.input}
+                                    placeholder="Edit Playlist Name"
+                                    onChange={(e) => { setPlaylistName(e.target.value) }}
+                                    value={playlistName}
+                                />
+                            </div>
+                            <div className={styles.searchResultContainer}>
+                                {playlistContent && playlistContent.map((track) => {
+                                    return (
+                                        <TrackCard
+                                            track={track}
+                                            isPlaying={isPlaying}
+                                            setIsPlaying={setIsPlaying}
+                                            playingTrack={playingTrack}
+                                            setPlayingTrack={setPlayingTrack}
+                                            playerRef={playerRef}
+                                            deviceId={deviceId}
+                                            inPlaylist
+                                            playlistContent={playlistContent}
+                                            setPlaylistContent={setPlaylistContent}
+                                        />
+                                    )
+                                })}
+                            </div>
                         </div>
                     </div>
                 </div>
                 <footer className={styles.footer}>© 2021 Yuki Oshima</footer>
             </Div100vh>
-        </div>
+        </div >
     );
 }
 
