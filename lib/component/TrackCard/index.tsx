@@ -52,6 +52,7 @@ const TrackCard: React.FunctionComponent<{
                     <div className={styles.params}>
                         <div>{`BPM: ${Math.round(track.audioFeatures?.tempo || 0)}`}</div>
                         <div>{`Danceability: ${track.audioFeatures?.danceability}`}</div>
+                        <div>{`Energy: ${track.audioFeatures?.energy}`}</div>
                     </div>
                 </div>
                 {(isPlaying && playingTrack && track.id === playingTrack.id) ? (
@@ -109,9 +110,6 @@ const TrackCard: React.FunctionComponent<{
                                             setRecommendTargetTrack();
                                         }
                                     }
-                                }
-                                if (isPlaying && playingTrack?.id === track.id) {
-                                    playerRef.current?.pause();
                                 }
                                 setPlaylistContent([...playlistContent.filter((playlistTrack) => (playlistTrack.id !== track.id))]);
                             }}

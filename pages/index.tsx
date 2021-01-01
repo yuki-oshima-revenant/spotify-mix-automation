@@ -4,6 +4,7 @@ import Div100vh from 'react-div-100vh'
 import styles from '@/styles/index.module.less';
 import useSearchTracksApi from '@/lib/hook/useSearchTracksApi';
 import { AiFillGithub, AiOutlineSave } from "react-icons/ai";
+import { IoPlaySharp, IoPauseSharp } from 'react-icons/io5';
 import { FaSpotify } from "react-icons/fa";
 import useLoginApi from '@/lib/hook/useLoginApi';
 import { SearchTracksRecord } from '@/lib/type/spotifyapi';
@@ -24,7 +25,12 @@ const Index = ({ loginPath }: InferGetStaticPropsType<typeof getStaticProps>) =>
     const [playlistContent, setPlaylistContent] = useState<SearchTracksRecord[]>([]);
     const [activeTab, setActiveTab] = useState<'search' | 'recommend'>('search');
     const [recommendTargetTrack, setRecommendTargetTrack] = useState<SearchTracksRecord>();
-    const { data: recommendData, isValidating: recommendLoading, mutate: recommendMutate } = useRecommendTracksApi(recommendTargetTrack ? { track: recommendTargetTrack } : undefined);
+    const { data: recommendData, isValidating: recommendLoading, mutate: recommendMutate } = useRecommendTracksApi(
+        recommendTargetTrack ? { track: recommendTargetTrack } : undefined
+    );
+    const seekbarRef = useRef<HTMLDivElement | null>(null);
+    const [playingTrackPosition, setPlayingTrackPosition] = useState<number>(0)
+
 
     const login = useCallback(() => {
         window.location.href = loginPath;
@@ -38,7 +44,7 @@ const Index = ({ loginPath }: InferGetStaticPropsType<typeof getStaticProps>) =>
         recommendMutate();
         if (recommendTargetTrack) {
             setActiveTab('recommend');
-        }else{
+        } else {
             setActiveTab('search');
         }
     }, [recommendTargetTrack]);
@@ -67,6 +73,16 @@ const Index = ({ loginPath }: InferGetStaticPropsType<typeof getStaticProps>) =>
         }
     }, [loginData]);
 
+    useEffect(() => {
+        if (isPlaying) {
+            const timeout = setInterval(async () => {
+                const palyerState = await playerRef.current?.getCurrentState();
+                setPlayingTrackPosition(palyerState?.position || 0);
+            }, 100);
+            return () => { clearInterval(timeout) };
+        }
+    }, [isPlaying]);
+
     return (
         <div>
             <header className={styles.headerTop}>
@@ -84,6 +100,46 @@ const Index = ({ loginPath }: InferGetStaticPropsType<typeof getStaticProps>) =>
                 </div>
             </header>
             <Div100vh className={styles.contentWrapper}>
+                {playingTrack && (
+                    <div className={styles.player}>
+                        <img
+                            src={playingTrack.album.images.find((image) => (image.height === 300))?.url}
+                            width="80px"
+                            height="80px"
+                            alt={playingTrack.name}
+                        />
+                        <div className={styles.description}>
+                            <div className={styles.name}>{playingTrack.name}</div>
+                            <div className={styles.artist}>{playingTrack.artists.map((artist) => (artist.name)).join(', ')}</div>
+                            <div className={styles.controller}>
+                                {isPlaying ?
+                                    <IoPauseSharp onClick={() => {
+                                        setIsPlaying(false);
+                                        playerRef.current?.pause();
+                                    }} />
+                                    : <IoPlaySharp onClick={() => {
+                                        setIsPlaying(true);
+                                        playerRef.current?.togglePlay()
+                                    }} />}
+                                <div
+                                    className={styles.seekbar}
+                                    ref={seekbarRef}
+                                    style={{ backgroundSize: `${(playingTrackPosition / playingTrack.duration_ms) * 100}%` }}
+                                    onClick={(e) => {
+                                        const mouse = e.pageX;
+                                        const rect = seekbarRef.current?.getBoundingClientRect();
+                                        if (rect) {
+                                            const position = rect.left + window.pageXOffset;
+                                            const offset = mouse - position;
+                                            const width = rect?.right - rect?.left;
+                                            playerRef.current?.seek(Math.round(playingTrack.duration_ms * (offset / width)))
+                                        }
+                                    }}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                )}
                 <div className={styles.content}>
                     <div className={styles.titleContainer}>
                         <h1 className={styles.title}>
@@ -128,6 +184,7 @@ const Index = ({ loginPath }: InferGetStaticPropsType<typeof getStaticProps>) =>
                                         {searchData && searchData.tracks.map((track) => {
                                             return (
                                                 <TrackCard
+                                                    key={track.id}
                                                     track={track}
                                                     isPlaying={isPlaying}
                                                     setIsPlaying={setIsPlaying}
@@ -155,6 +212,7 @@ const Index = ({ loginPath }: InferGetStaticPropsType<typeof getStaticProps>) =>
                                                 {recommendData && recommendData.upperTracks.map((track) => {
                                                     return (
                                                         <TrackCard
+                                                            key={track.id}
                                                             track={track}
                                                             isPlaying={isPlaying}
                                                             setIsPlaying={setIsPlaying}
@@ -178,6 +236,7 @@ const Index = ({ loginPath }: InferGetStaticPropsType<typeof getStaticProps>) =>
                                                 {recommendData && recommendData.downerTracks.map((track) => {
                                                     return (
                                                         <TrackCard
+                                                            key={track.id}
                                                             track={track}
                                                             isPlaying={isPlaying}
                                                             setIsPlaying={setIsPlaying}
@@ -211,18 +270,18 @@ const Index = ({ loginPath }: InferGetStaticPropsType<typeof getStaticProps>) =>
                                         value={playlistName}
                                     />
                                     <button className={styles.save}
-                                    onClick={async ()=>{
-                                        const param = {
-                                            name: playlistName,
-                                            uris: playlistContent.map((track)=>(track.uri)),
-                                            isPublic: false
-                                        }
-                                        try{
-                                            axios.post('/api/playlist/save', param);
-                                        }catch{
-                                            
-                                        }
-                                    }}>
+                                        onClick={async () => {
+                                            const param = {
+                                                name: playlistName,
+                                                uris: playlistContent.map((track) => (track.uri)),
+                                                isPublic: false
+                                            }
+                                            try {
+                                                axios.post('/api/playlist/save', param);
+                                            } catch {
+
+                                            }
+                                        }}>
                                         <AiOutlineSave />
                                         Save
                                     </button>
@@ -231,6 +290,7 @@ const Index = ({ loginPath }: InferGetStaticPropsType<typeof getStaticProps>) =>
                                     {playlistContent && playlistContent.map((track) => {
                                         return (
                                             <TrackCard
+                                                key={track.id}
                                                 track={track}
                                                 isPlaying={isPlaying}
                                                 setIsPlaying={setIsPlaying}

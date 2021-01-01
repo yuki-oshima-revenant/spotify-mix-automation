@@ -7,8 +7,11 @@ import getAudioFeatures from '@/lib/util/getAudioFeatures';
 type RecommendType = 'upper' | 'downer';
 
 const getRecommendTracks = async (audioFeature: AudioFeature, accessToken: string, type: RecommendType) => {
-    const minDanceability = type === 'upper' ? audioFeature.danceability : audioFeature.danceability * 0.9;
-    const maxDanceability = type === 'upper' ? audioFeature.danceability * 1.1 : audioFeature.danceability;
+    const minDanceability = type === 'upper' ? audioFeature.danceability : audioFeature.danceability * 0.8;
+    const maxDanceability = type === 'upper' ? audioFeature.danceability * 1.2 : audioFeature.danceability;
+    const minEnergy = type === 'upper' ? audioFeature.energy : audioFeature.energy * 0.8;
+    const maxEnergy = type === 'upper' ? audioFeature.energy * 1.2 : audioFeature.energy;
+
 
     const recommendationsParams = new URLSearchParams();
     recommendationsParams.set('seed_tracks', audioFeature.id);
@@ -16,6 +19,9 @@ const getRecommendTracks = async (audioFeature: AudioFeature, accessToken: strin
     recommendationsParams.set('max_tempo', (audioFeature.tempo * 1.1).toString());
     recommendationsParams.set('min_danceability', (minDanceability).toString());
     recommendationsParams.set('max_danceability', (maxDanceability).toString());
+    recommendationsParams.set('min_energy', (minEnergy).toString());
+    recommendationsParams.set('max_energy', (maxEnergy).toString());
+
 
     const recommendationsResponse = await axios.get<SpotifyRecommendApiResponse>(
         `https://api.spotify.com/v1/recommendations?${recommendationsParams.toString()}`,

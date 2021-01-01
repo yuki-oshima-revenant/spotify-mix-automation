@@ -4,7 +4,8 @@ type TrackItem = {
     href: string,
     id: string,
     name: string,
-    uri: string
+    uri: string,
+    duration_ms:number,
 }
 
 export type SpotifySearchApiResponse = {

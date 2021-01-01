@@ -3,6 +3,7 @@
 svg{
     margin-right: 8px;
     vertical-align: text-bottom;
+    cursor: pointer;
 }
 
 .header(){
@@ -213,6 +214,53 @@ svg{
         cursor: pointer;
         &:focus{
             outline:0;
+        }
+    }
+}
+
+.player{
+    position: fixed;
+    top: calc(@header-height + 8px);
+    right: 16px;
+    width:360px;
+    height: 80px;
+    box-shadow: 0 4px 14px 0 rgba(0,0,0,0.1);
+    border-radius: 4px;
+    z-index: 1000;
+    background-color: white;
+    display: flex;
+    img{
+        border-radius: 4px 0 0 4px;
+    }
+    .description{
+        padding:8px 8px 0 8px;
+        .name{
+            display: inline-block;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+            width: 240px;
+            font-weight: 600;
+        }
+        .artist{
+            display: inline-block;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+            width: 240px;
+            font-size: 14px;
+        }
+        .controller{
+            display: flex;
+            margin-top: 4px;
+            .seekbar{
+                margin:auto 0;
+                width: 240px;
+                height: 6px;
+                border-radius: 4px;
+                background: linear-gradient(@theme-color, @theme-color) no-repeat #eee;
+                cursor: pointer;
+            }
         }
     }
 }
