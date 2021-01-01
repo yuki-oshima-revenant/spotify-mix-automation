@@ -1,7 +1,7 @@
 import { ApiHandler } from '@/lib/type/handler';
 import axios from 'axios';
 import withSession from '@/lib/middleware/session';
-import { SpotifyRecommendApiResponse, AudioFeature, SearchTracksResponse } from '@/lib/type/spotifyapi';
+import { SpotifyRecommendApiResponse, AudioFeature, SearchTracksResponse, SearchTracksRecord } from '@/lib/type/spotifyapi';
 import getAudioFeatures from '@/lib/util/getAudioFeatures';
 
 type RecommendType = 'upper' | 'downer';
@@ -34,7 +34,7 @@ const getRecommendTracks = async (audioFeature: AudioFeature, accessToken: strin
     });
 };
 
-export interface RequestBody { audioFeature: AudioFeature }
+export interface RequestBody { track: SearchTracksRecord }
 
 export interface ResponseBody {
     upperTracks: SearchTracksResponse,
@@ -43,7 +43,11 @@ export interface ResponseBody {
 
 const recommendedTracks: ApiHandler<RequestBody, ResponseBody> = async (req, res) => {
     try {
-        const audioFeature = req.body.audioFeature as AudioFeature;
+        const audioFeature = req.body.track.audioFeatures;
+        if(!audioFeature){
+            res.status(500).send('invalid parameter');
+            return;
+        }
         const accessToken = req.session.get('user').accessToken;
 
         const [upperTracks, downerTracks] = await Promise.all(

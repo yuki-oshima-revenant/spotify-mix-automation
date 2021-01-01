@@ -1,5 +1,9 @@
 @import './theme.less';
 
+svg{
+    margin-right: 8px;
+    vertical-align: text-bottom;
+}
 
 .header(){
     position: fixed;
@@ -16,7 +20,6 @@
         font-weight: 500;
         letter-spacing: -0.03em;
         pointer-events: none;
-
     }
     .content{
         display: flex;
@@ -58,8 +61,14 @@
             .title{
                 font-size: 64px;
                 font-weight: 700;
-                letter-spacing: -0.06em;
+                letter-spacing: -0.043em;
                 margin-bottom: 24px;
+                .colorText{
+                    background: -webkit-linear-gradient(0deg, @theme-color, @theme-color-dark);
+                    -webkit-background-clip: text;
+                    background-clip:text;
+                    -webkit-text-fill-color: transparent;   
+                }
             }
             .lowerTitle{
                 font-size: 40px;
@@ -83,7 +92,7 @@
                 border:0;
                 background-color: white;
                 box-shadow: 0 4px 14px 0 rgba(0,0,0,0.1);
-                border-radius: 8px;
+                border-radius: 32px;
                 height: 48px;
                 cursor: pointer;
                 &:focus{
@@ -96,60 +105,74 @@
             margin-top: 32px;
             justify-content: center;
             color:@text-color;
+            .titleWrapper{
+                display: flex;
+                justify-content: center;
+                .titleCommon(){
+                    font-weight: 700;
+                    font-size: 24px;
+                    text-align: center;
+                    margin-bottom:8px;
+                    padding: 0 12px;
+                    cursor: pointer;
+                    letter-spacing: -0.03em;
+                }
+                .title{
+                    .titleCommon();
+                    border-bottom: 3px solid @theme-color;
+                }
+                .titleUnselected{
+                    .titleCommon();
+                    color: #999;
+                }
+            }
+
             .searchCard{
                 border: @border-base;
                 border-radius: 4px;
                 width: 560px;
                 .searchResultContainer{
                     padding:16px;
-                    .trackCard{
-                        border-bottom: @border-base;
+                }
+            }
+            .recommendCard{
+                border: @border-base;
+                border-radius: 4px;
+                width: 560px;
+                .recommendContainer{
+                    padding:16px;
+                    .recommendTypeContainer{
+                        height: 64px;
                         display: flex;
-                        .cover{
-                            margin-right: 8px;
-                            height: 80px;
+                        .recommendType(){
+                            font-size: 20px;
+                            font-weight: 700;
+                            margin: auto 0;
                         }
-                        .description{
-                            padding: 8px;
-                            .name{
-                                display: inline-block;
-                                text-overflow: ellipsis;
-                                white-space: nowrap;
-                                overflow: hidden;
-                                width: 360px;
-                                font-weight: 600;
-                            }
-                            .artist{
-                                display: inline-block;
-                                text-overflow: ellipsis;
-                                white-space: nowrap;
-                                overflow: hidden;
-                                width: 360px;
-                                font-size: 14px;
-                            }
-                            .params{
-                                font-size: 12px;
-                                display: flex;
-                                div{
-                                    margin-right: 8px;
-                                }
-                            }
+                        .recommendTypeUpper{
+                            .recommendType();
+                            color: @theme-color-upper;
                         }
-                        .buttonWrap{
-                            display: flex;
-                            margin-right: 8px;
-                            .button{
-                                font-size: 24px;
-                                margin: auto;
-                                cursor: pointer;
-                            }
+                        .recommendTypeDowner{
+                            .recommendType();
+                            color: @theme-color-light;
                         }
+                    }
+                    .recommendContent{
+                    border: @border-base;
+
+                        height: 260px;
+                        overflow: auto;
                     }
                 }
             }
             .playlistCard{
                 border: @border-base;
                 width: 560px;
+                border-radius: 4px;
+                .playlistContainer{
+                    padding: 16px;
+                }
             }
         }
     }
@@ -174,6 +197,22 @@
         &:focus{
             outline:0;
             border-bottom: 2px solid @theme-color;
+        }
+    }
+    .save{
+        margin-left: 12px;
+        font-size: 14px;
+        font-weight: 700;
+        padding: 8px 16px;
+        border:0;
+        background-color: @theme-color;
+        color: white;
+        // box-shadow: 0 4px 14px 0 rgba(0,0,0,0.1);
+        border-radius: 32px;
+        height: 32px;
+        cursor: pointer;
+        &:focus{
+            outline:0;
         }
     }
 }

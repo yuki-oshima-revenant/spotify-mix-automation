@@ -1,19 +1,22 @@
 import styles from './index.module.less';
 import { SearchTracksRecord } from '@/lib/type/spotifyapi';
-import { AiOutlinePlus, AiFillPlayCircle, AiFillPauseCircle, AiOutlineMinus } from 'react-icons/ai';
+import { AiOutlinePlus, AiFillPlayCircle, AiFillPauseCircle, AiOutlineClose } from 'react-icons/ai';
 import axios from 'axios';
+import classnames from 'classnames';
 
 const TrackCard: React.FunctionComponent<{
     track: SearchTracksRecord,
     isPlaying: boolean,
     setIsPlaying: (b: boolean) => void,
     playingTrack?: SearchTracksRecord,
-    setPlayingTrack: (t: SearchTracksRecord) => void,
+    setPlayingTrack: (t?: SearchTracksRecord) => void,
     playerRef: React.MutableRefObject<Spotify.SpotifyPlayer | null>,
     deviceId?: string,
     inPlaylist: boolean,
     playlistContent: SearchTracksRecord[],
-    setPlaylistContent: (t: SearchTracksRecord[]) => void
+    setPlaylistContent: (t: SearchTracksRecord[]) => void,
+    recommendTargetTrack?: SearchTracksRecord,
+    setRecommendTargetTrack: (t?: SearchTracksRecord) => void;
 }> = ({
     track,
     isPlaying,
@@ -24,16 +27,24 @@ const TrackCard: React.FunctionComponent<{
     deviceId,
     inPlaylist,
     playlistContent,
-    setPlaylistContent
+    setPlaylistContent,
+    recommendTargetTrack,
+    setRecommendTargetTrack
 }) => {
         return (
-            <div className={styles.trackCard} key={track.id}>
+            <div className={classnames(styles.trackCard, track.id === recommendTargetTrack?.id && styles.recommendedTrack)} key={track.id}>
                 <img
                     className={styles.cover}
                     src={track.album.images.find((image) => (image.height === 300))?.url}
                     width="80px"
                     height="80px"
                     alt={track.name}
+                    style={inPlaylist ? { cursor: 'pointer' } : {}}
+                    onClick={() => {
+                        if (inPlaylist) {
+                            setRecommendTargetTrack(track);
+                        }
+                    }}
                 />
                 <div className={styles.description}>
                     <div className={styles.name}>{track.name}</div>
@@ -64,13 +75,17 @@ const TrackCard: React.FunctionComponent<{
                                     } else {
                                         playerRef.current?.pause();
                                         setPlayingTrack(track);
-                                        axios.post('/api/track/play',
-                                            {
-                                                deviceId,
-                                                uris: [track.uri]
-                                            });
+                                        try {
+                                            axios.post('/api/track/play',
+                                                {
+                                                    deviceId,
+                                                    uris: [track.uri]
+                                                });
+                                            setIsPlaying(true);
+                                        } catch (e) {
+                                            setPlayingTrack();
+                                        }
                                     }
-                                    setIsPlaying(true);
                                 }}
                             />
                         </div>
@@ -78,9 +93,27 @@ const TrackCard: React.FunctionComponent<{
                 }
                 {inPlaylist ? (
                     <div className={styles.buttonWrap}>
-                        <AiOutlineMinus className={styles.button}
+                        <AiOutlineClose className={styles.button}
                             onClick={() => {
-                                setPlaylistContent([...playlistContent.filter((playlistTrack) => (playlistTrack.id !== track.id))])
+                                if (track.id === recommendTargetTrack?.id) {
+                                    if (track.id === playlistContent[playlistContent.length - 1].id) {
+                                        if (playlistContent.length >= 2) {
+                                            setRecommendTargetTrack(playlistContent[playlistContent.length - 2]);
+                                        } else {
+                                            setRecommendTargetTrack();
+                                        }
+                                    } else {
+                                        if (playlistContent.length >= 2) {
+                                            setRecommendTargetTrack(playlistContent[playlistContent.length - 1]);
+                                        } else {
+                                            setRecommendTargetTrack();
+                                        }
+                                    }
+                                }
+                                if (isPlaying && playingTrack?.id === track.id) {
+                                    playerRef.current?.pause();
+                                }
+                                setPlaylistContent([...playlistContent.filter((playlistTrack) => (playlistTrack.id !== track.id))]);
                             }}
                         />
                     </div>
@@ -89,7 +122,10 @@ const TrackCard: React.FunctionComponent<{
                         <div className={styles.buttonWrap}>
                             <AiOutlinePlus className={styles.button}
                                 onClick={() => {
-                                    setPlaylistContent([...playlistContent, track]);
+                                    if (!playlistContent.find((playlistTrack) => (playlistTrack.id === track.id))) {
+                                        setPlaylistContent([...playlistContent, track]);
+                                    }
+                                    setRecommendTargetTrack(track);
                                 }}
                             />
                         </div>

@@ -11,7 +11,7 @@ const Index = ({ loginPath }: InferGetStaticPropsType<typeof getStaticProps>) =>
     const [query, setQuery] = useState<string[]>([]);
     const [targetTrack, setTargetTrack] = useState<AudioFeature>();
     const { data: searchData, isValidating: searchLoading, mutate: searchMutate } = useSearchTracksApi({ query });
-    const { data: recommendData, isValidating: recommendLoading, mutate: recommendMutate } = useRecommendTracksApi(targetTrack ? { audioFeature: targetTrack } : undefined);
+    // const { data: recommendData, isValidating: recommendLoading, mutate: recommendMutate } = useRecommendTracksApi(targetTrack ? { audioFeature: targetTrack } : undefined);
     const { data: loginData } = useLoginApi();
     const playerRef = useRef<Spotify.SpotifyPlayer | null>(null);
     const [deviceId, setDeviceId] = useState<string>();
@@ -20,9 +20,9 @@ const Index = ({ loginPath }: InferGetStaticPropsType<typeof getStaticProps>) =>
         window.location.href = loginPath;
     }, [loginPath]);
 
-    useEffect(() => {
-        recommendMutate();
-    }, [targetTrack]);
+    // useEffect(() => {
+    //     recommendMutate();
+    // }, [targetTrack]);
 
     useEffect(() => {
         if (loginData && loginData.accessToken) {
