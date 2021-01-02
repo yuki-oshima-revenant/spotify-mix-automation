@@ -6,7 +6,7 @@ const App = ({ Component, pageProps }: AppProps) => {
     return (
         <>
             <Head>
-                <title>AUTOMISCE - Automate Your Mix with Spotify API</title>
+                <title>AUTOMISCE</title>
             </Head>
             <Component {...pageProps} />
         </>
