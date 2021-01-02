@@ -55,81 +55,88 @@ const TrackCard: React.FunctionComponent<{
                         <div>{`Energy: ${track.audioFeatures?.energy}`}</div>
                     </div>
                 </div>
-                {(isPlaying && playingTrack && track.id === playingTrack.id) ? (
-                    <div className={styles.buttonWrap}>
-                        <AiFillPauseCircle
-                            className={styles.button}
-                            onClick={() => {
-                                playerRef.current?.pause();
-                                setIsPlaying(false);
-                            }}
-                        />
-                    </div>
-                )
-                    : (
+                <div className={styles.buttons}>
+                    {(isPlaying && playingTrack && track.id === playingTrack.id) ? (
                         <div className={styles.buttonWrap}>
-                            <AiFillPlayCircle
+                            <AiFillPauseCircle
                                 className={styles.button}
                                 onClick={() => {
-                                    if (playingTrack?.id === track.id) {
-                                        playerRef.current?.togglePlay();
-                                    } else {
-                                        playerRef.current?.pause();
-                                        setPlayingTrack(track);
-                                        try {
-                                            axios.post('/api/track/play',
-                                                {
-                                                    deviceId,
-                                                    uris: [track.uri]
-                                                });
-                                            setIsPlaying(true);
-                                        } catch (e) {
-                                            console.log(e.message);
-                                            setPlayingTrack();
-                                        }
-                                    }
+                                    playerRef.current?.pause();
+                                    setIsPlaying(false);
                                 }}
                             />
                         </div>
                     )
-                }
-                {inPlaylist ? (
-                    <div className={styles.buttonWrap}>
-                        <AiOutlineClose className={styles.button}
-                            onClick={() => {
-                                if (track.id === recommendTargetTrack?.id) {
-                                    if (track.id === playlistContent[playlistContent.length - 1].id) {
-                                        if (playlistContent.length >= 2) {
-                                            setRecommendTargetTrack(playlistContent[playlistContent.length - 2]);
+                        : (
+                            <div className={styles.buttonWrap}>
+                                <AiFillPlayCircle
+                                    className={styles.button}
+                                    onClick={() => {
+                                        // const userAgent = window.navigator.userAgent.toLowerCase();
+                                        // if (userAgent.indexOf('iphone') != -1 || userAgent.indexOf('ipad') != -1 || userAgent.indexOf('android') != -1) {
+                                        //     window.open(`https://open.spotify.com/track/${track.id}`)
+                                        //     return;
+                                        // }
+                                        if (playingTrack?.id === track.id) {
+                                            playerRef.current?.togglePlay();
                                         } else {
-                                            setRecommendTargetTrack();
+                                            playerRef.current?.pause();
+                                            setPlayingTrack(track);
+                                            try {
+                                                axios.post('/api/track/play',
+                                                    {
+                                                        deviceId,
+                                                        uris: [track.uri]
+                                                    });
+                                                setIsPlaying(true);
+                                            } catch (e) {
+                                                console.log(e.message);
+                                                setPlayingTrack();
+                                            }
                                         }
-                                    } else {
-                                        if (playlistContent.length >= 2) {
-                                            setRecommendTargetTrack(playlistContent[playlistContent.length - 1]);
-                                        } else {
-                                            setRecommendTargetTrack();
-                                        }
-                                    }
-                                }
-                                setPlaylistContent([...playlistContent.filter((playlistTrack) => (playlistTrack.id !== track.id))]);
-                            }}
-                        />
-                    </div>
-
-                ) : (
+                                    }}
+                                />
+                            </div>
+                        )
+                    }
+                    {inPlaylist ? (
                         <div className={styles.buttonWrap}>
-                            <AiOutlinePlus className={styles.button}
+                            <AiOutlineClose className={styles.button}
                                 onClick={() => {
-                                    if (!playlistContent.find((playlistTrack) => (playlistTrack.id === track.id))) {
-                                        setPlaylistContent([...playlistContent, track]);
+                                    if (track.id === recommendTargetTrack?.id) {
+                                        if (track.id === playlistContent[playlistContent.length - 1].id) {
+                                            if (playlistContent.length >= 2) {
+                                                setRecommendTargetTrack(playlistContent[playlistContent.length - 2]);
+                                            } else {
+                                                setRecommendTargetTrack();
+                                            }
+                                        } else {
+                                            if (playlistContent.length >= 2) {
+                                                setRecommendTargetTrack(playlistContent[playlistContent.length - 1]);
+                                            } else {
+                                                setRecommendTargetTrack();
+                                            }
+                                        }
                                     }
-                                    setRecommendTargetTrack(track);
+                                    setPlaylistContent([...playlistContent.filter((playlistTrack) => (playlistTrack.id !== track.id))]);
                                 }}
                             />
                         </div>
+                    ) : (
+                            <div className={styles.buttonWrap}>
+                                <AiOutlinePlus className={styles.button}
+                                    onClick={() => {
+                                        if (!playlistContent.find((playlistTrack) => (playlistTrack.id === track.id))) {
+                                            setPlaylistContent([...playlistContent, track]);
+                                        }
+                                        setRecommendTargetTrack(track);
+                                    }}
+                                />
+                            </div>
 
-                    )}
+                        )}
+                </div>
+
             </div>
         )
     };

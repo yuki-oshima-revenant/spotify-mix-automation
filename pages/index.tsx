@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, useRef } from 'react';
+import { useCallback, useEffect, useState, useRef, useMemo } from 'react';
 import { GetStaticProps, InferGetStaticPropsType } from 'next';
 import Div100vh, { use100vh } from 'react-div-100vh'
 import styles from '@/styles/index.module.less';
@@ -34,7 +34,8 @@ const Index = ({ loginPath }: InferGetStaticPropsType<typeof getStaticProps>) =>
     const height100vh = use100vh();
     const [savePlaylistLoading, setSavePlaylistLoading] = useState<boolean>(false);
     const [playlistId, setPlaylistId] = useState<string>();
-    const inputRef = useRef<HTMLInputElement>(null)
+    const inputRef = useRef<HTMLInputElement>(null);
+    const playlistContentRef = useRef<HTMLDivElement>(null);
 
     const login = useCallback(() => {
         window.location.href = loginPath;
@@ -53,11 +54,33 @@ const Index = ({ loginPath }: InferGetStaticPropsType<typeof getStaticProps>) =>
         }
     }, [recommendTargetTrack]);
 
-    useEffect(()=>{
-        if(activeTab === 'search'){
+    useEffect(() => {
+        if (activeTab === 'search') {
             inputRef.current?.focus();
         }
-    },[activeTab])
+    }, [activeTab]);
+
+    useEffect(() => {
+        const ref = playlistContentRef.current;
+        if (ref) {
+            ref.scrollTop = ref.scrollHeight;
+        }
+    }, [playlistContent]);
+
+    const contentStyle = useCallback((isRecommend: boolean, isSmallBox: boolean) => {
+        if (process.browser) {
+            const divider = window.innerWidth <= 996 ? 2 : 1;
+            if (isRecommend) {
+                if (isSmallBox) {
+                    return { height: height100vh ? (((height100vh - 210 + 64) / divider) / 2 - 64) : 'calc(calc(100vh - 210px)/2 - 64px - 32px)' };
+                } else {
+                    return { height: height100vh ? (height100vh - 210 + 64) / divider : 'calc(100vh - 210px + 64px)' };
+                }
+            }
+            return { height: height100vh ? (height100vh - 210) / divider : 'calc(100vh - 210px)' }
+        }
+        return { height: height100vh ? (height100vh - 210) : 'calc(100vh - 210px)' }
+    }, [height100vh]);
 
     useEffect(() => {
         if (loginData && loginData.accessToken) {
@@ -161,7 +184,7 @@ const Index = ({ loginPath }: InferGetStaticPropsType<typeof getStaticProps>) =>
                     </div>
                     <div className={styles.signin}>
                         {(loginData && !loginError) ? (
-                            <div>
+                            <div className={styles.afterLoginButtons}>
                                 <button className={styles.startButton} onClick={() => {
                                     scroller.scrollTo('mainContainer', {
                                         offset: -48,
@@ -210,7 +233,7 @@ const Index = ({ loginPath }: InferGetStaticPropsType<typeof getStaticProps>) =>
                                                 onChange={(e) => { setQuery(e.target.value.replace(/　/g, ' ').split(' ')) }}
                                             />
                                         </div>
-                                        <div className={styles.searchResultContainer} style={{ height: height100vh ? height100vh - 210 : 'calc(100vh - 210px)' }}>
+                                        <div className={styles.searchResultContainer} style={contentStyle(false, false)}>
                                             {searchData && searchData.tracks.map((track) => {
                                                 return (
                                                     <TrackCard
@@ -234,11 +257,11 @@ const Index = ({ loginPath }: InferGetStaticPropsType<typeof getStaticProps>) =>
                                     </div>
                                 ) : (
                                         <div className={styles.recommendCard} style={!loginData ? { filter: 'blur(8px)', pointerEvents: 'none' } : {}}>
-                                            <div className={styles.recommendContainer} style={{ height: height100vh ? height100vh - 210 + 64 : 'calc(100vh - 210px + 64px)' }}>
+                                            <div className={styles.recommendContainer} style={contentStyle(true, false)}>
                                                 <div className={styles.recommendTypeContainer}>
-                                                    <div className={styles.recommendTypeUpper}>Get High</div>
+                                                    <div className={styles.recommendTypeUpper}>Upper Tracks</div>
                                                 </div>
-                                                <div className={styles.recommendContent} style={{ height: height100vh ? (height100vh - 210) / 2 - 64 : 'calc(calc(100vh - 210px)/2 - 64px)' }}>
+                                                <div className={styles.recommendContent} style={contentStyle(true, true)}>
                                                     {recommendData && recommendData.upperTracks.map((track) => {
                                                         return (
                                                             <TrackCard
@@ -260,9 +283,9 @@ const Index = ({ loginPath }: InferGetStaticPropsType<typeof getStaticProps>) =>
                                                     })}
                                                 </div>
                                                 <div className={styles.recommendTypeContainer}>
-                                                    <div className={styles.recommendTypeDowner}>Chill Out</div>
+                                                    <div className={styles.recommendTypeDowner}>Chill Out Tracks</div>
                                                 </div>
-                                                <div className={styles.recommendContent} style={{ height: height100vh ? (height100vh - 210) / 2 - 64 : 'calc(calc(100vh - 210px)/2 - 64px)' }}>
+                                                <div className={styles.recommendContent} style={contentStyle(true, true)}>
                                                     {recommendData && recommendData.downerTracks.map((track) => {
                                                         return (
                                                             <TrackCard
@@ -289,7 +312,7 @@ const Index = ({ loginPath }: InferGetStaticPropsType<typeof getStaticProps>) =>
                             </div>
                             <div>
                                 <div className={styles.titleWrapper}>
-                                    <div className={styles.title}>Playlist</div>
+                                    <div className={styles.titlePlaylist}>Playlist</div>
                                 </div>
                                 <div className={styles.playlistCard} style={!loginData ? { filter: 'blur(8px)', pointerEvents: 'none' } : {}}>
                                     <div className={styles.inputContainer}>
@@ -327,9 +350,12 @@ const Index = ({ loginPath }: InferGetStaticPropsType<typeof getStaticProps>) =>
                                                     {playlistId ? 'Update' : 'Save'}
                                                 </button>
                                             )}
-
                                     </div>
-                                    <div className={styles.playlistContainer} style={{ height: height100vh ? height100vh - 210 : 'calc(100vh - 210px)' }}>
+                                    <div
+                                        className={styles.playlistContainer}
+                                        ref={playlistContentRef}
+                                        style={contentStyle(false, false)}
+                                    >
                                         {playlistContent.length > 0
                                             ? (<>
                                                 {playlistContent.map((track) => {

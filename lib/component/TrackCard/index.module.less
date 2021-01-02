@@ -16,6 +16,9 @@
             overflow: hidden;
             width: 360px;
             font-weight: 600;
+            @media screen and(max-width:@break-point-narrow) {
+                width: 192px;
+            }
         }
         .artist{
             display: inline-block;
@@ -24,6 +27,10 @@
             overflow: hidden;
             width: 360px;
             font-size: 14px;
+            @media screen and(max-width:@break-point-narrow) {
+                width: 192px;
+            }
+
         }
         .params{
             font-size: 12px;
@@ -33,15 +40,27 @@
             }
         }
     }
-    .buttonWrap{
-        display: flex;
-        margin-right: 8px;
-        .button{
-            font-size: 24px;
-            margin: auto;
-            cursor: pointer;
+    .buttons{
+        @media screen and(max-width:@break-point-narrow) {
+            padding: 8px 0;
+        }
+        @media screen and(min-width:@break-point-narrow) {
+            display: flex;
+        }
+        .buttonWrap{
+            display: flex;
+            margin-right: 8px;
+            @media screen and(max-width:@break-point-narrow) {
+                margin-top: 8px;
+            }
+            .button{
+                font-size: 24px;
+                margin: auto;
+                cursor: pointer;
+            }
         }
     }
+
 }
 
 .recommendedTrack{

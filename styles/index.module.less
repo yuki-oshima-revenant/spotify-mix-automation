@@ -64,6 +64,10 @@ svg{
                 font-weight: 700;
                 letter-spacing: -0.043em;
                 margin-bottom: 24px;
+                @media screen and(max-width:@break-point-narrow) {
+                    font-size: 36px;
+                    margin-bottom: 14px;
+                }
                 .colorText{
                     background: -webkit-linear-gradient(0deg, @theme-color, @theme-color-dark);
                     -webkit-background-clip: text;
@@ -76,63 +80,62 @@ svg{
                 font-weight: 700;
                 letter-spacing: -0.04em;
                 margin-top: 24px;
+                @media screen and(max-width:@break-point-narrow) {
+                    font-size: 24px;
+                    margin-top: 14px;
+                }
             }
         }
         .signin{
             text-align: center;
             margin-top: 48px;
             margin-bottom: 128px;
+            .buttonCommon(){
+                font-size: 16px;
+                padding: 12px 32px;
+                border:0;
+                box-shadow: 0 4px 14px 0 rgba(0,0,0,0.1);
+                border-radius: 32px;
+                height: 48px;
+                cursor: pointer;
+                &:focus{
+                    outline:0;
+                }
+                @media screen and(max-width:@break-point-narrow) {
+                    height: 40px;  
+                    padding: 8px 24px;
+                }
+            }
             .signinButton{
+                font-weight: 700;
                 .icon{
                     color:@spotify-color;
                     vertical-align: text-bottom;
                     margin-right: 4px;
                 }
-                font-size: 16px;
-                padding: 12px 32px;
-                border:0;
+                .buttonCommon();
                 background-color: white;
-                box-shadow: 0 4px 14px 0 rgba(0,0,0,0.1);
-                border-radius: 32px;
-                height: 48px;
-                cursor: pointer;
-                &:focus{
-                    outline:0;
-                }
             }
-            .startButton{
-                margin:0 8px;
-                font-size: 16px;
-                font-weight: 700;
-                padding: 12px 32px;
-                width: 200px;
-                border:0;
-                color: white;
-                background: linear-gradient(90deg, @theme-color, @theme-color-dark);
-                box-shadow: 0 4px 14px 0 rgba(0,0,0,0.1);
-                border-radius: 32px;
-                height: 48px;
-                cursor: pointer;
-                &:focus{
-                    outline:0;
+            .afterLoginButtons{
+                @media screen and(max-width:@break-point) {
+                    display: flex;
+                    justify-content: center;
                 }
-            }
-            .logoutButton{
-                margin:0 8px;
-                font-size: 16px;
-                font-weight: 700;
-                padding: 12px 32px;
-                width: 200px;
-                border:0;
-                background-color: white;
-                box-shadow: 0 4px 14px 0 rgba(0,0,0,0.1);
-                border-radius: 32px;
-                height: 48px;
-                cursor: pointer;
-                &:focus{
-                    outline:0;
+                .startButton{
+                    margin:0 8px;
+                    width: 200px;
+                    color: white;
+                    font-weight: 700;
+                    background: linear-gradient(90deg, @theme-color, @theme-color-dark);
+                    .buttonCommon();
                 }
-            
+                .logoutButton{
+                    margin:0 8px;
+                    width: 200px;
+                    background-color: white;
+                    font-weight: 700;
+                    .buttonCommon();
+                }
             }
         }
         .mainContainer{
@@ -140,6 +143,10 @@ svg{
             margin-top: 32px;
             justify-content: center;
             color:@text-color;
+            @media screen and(max-width:@break-point) {
+                flex-direction: column;
+                align-items: center;
+            }
             .titleWrapper{
                 display: flex;
                 justify-content: center;
@@ -162,12 +169,26 @@ svg{
                     .titleCommon();
                     color: #999;
                 }
+                .titlePlaylist{
+                    .titleCommon();
+                    border-bottom: 3px solid @theme-color;
+                    @media screen and(max-width:@break-point) {
+                        margin-top: 32px;
+                    }
+                }
             }
 
-            .searchCard{
+            .cardCommon(){
                 border-radius: 4px;
                 width: 560px;
                 margin:0 8px;
+                @media screen and(max-width:@break-point-narrow) {
+                    width: 360px;
+
+                }
+            }
+            .searchCard{
+                .cardCommon();
                 .searchResultContainer{
                     border: @border-base;
                     padding:16px;
@@ -175,9 +196,7 @@ svg{
                 }
             }
             .recommendCard{
-                border-radius: 4px;
-                width: 560px;
-                margin:0 8px;
+                .cardCommon();
                 .recommendContainer{
                     .recommendTypeContainer{
                         padding:16px 16px 0 16px;
@@ -206,9 +225,7 @@ svg{
                 }
             }
             .playlistCard{
-                width: 560px;
-                border-radius: 4px;
-                margin:0 8px;
+                .cardCommon();
                 .playlistContainer{
                     border: @border-base;
                     overflow: auto;
