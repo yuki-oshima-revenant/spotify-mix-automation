@@ -20,7 +20,9 @@ const playTrack: ApiHandler<RequestBody, {}> = async (req, res) => {
                     'Authorization': `Bearer ${accessToken}`
                 }
             }
-        );
+        ).catch(e=>{
+            console.log(e);  
+        });
         res.status(200).end();
     } catch (e) {
         res.status(500).send(e.message);

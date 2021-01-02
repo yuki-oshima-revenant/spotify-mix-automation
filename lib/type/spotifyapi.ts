@@ -1,3 +1,11 @@
+export interface SpotifyAuthApiResponse {
+    access_token: string,
+    token_type: string,
+    scope: string,
+    expires_in: number,
+    refresh_token: string
+}
+
 type TrackItem = {
     album: { href: string, name: string, images: { url: string, height: number }[] },
     artists: { href: string, name: string }[],

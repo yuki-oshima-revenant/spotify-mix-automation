@@ -3,7 +3,9 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 interface SessionContent {
     userId: string,
     accessToken: string
-    refreshToken: string,
+    refreshToken?: string,
+    authedTs: string,
+    expiresIn: number,
 }
 
 interface Request<T> extends NextApiRequest {
@@ -14,7 +16,8 @@ interface Request<T> extends NextApiRequest {
             body: SessionContent
         ) => void,
         save: () => Promise<void>,
-        get: (name: string) => SessionContent
+        get: (name: string) => SessionContent,
+        destroy: () => Promise<void>
     }
 }
 

@@ -56,7 +56,7 @@ svg{
         .spotify{
             color:@spotify-color;
         }
-        padding: @header-height 24px 24px 24px;
+        padding: @header-height 24px 8px 24px;
         .titleContainer{
             text-align: center;
             .title{
@@ -81,12 +81,12 @@ svg{
         .signin{
             text-align: center;
             margin-top: 48px;
-            .button{
+            margin-bottom: 128px;
+            .signinButton{
                 .icon{
                     color:@spotify-color;
                     vertical-align: text-bottom;
                     margin-right: 4px;
-    
                 }
                 font-size: 16px;
                 padding: 12px 32px;
@@ -100,6 +100,40 @@ svg{
                     outline:0;
                 }
             }
+            .startButton{
+                margin:0 8px;
+                font-size: 16px;
+                font-weight: 700;
+                padding: 12px 32px;
+                width: 200px;
+                border:0;
+                color: white;
+                background: linear-gradient(90deg, @theme-color, @theme-color-dark);
+                box-shadow: 0 4px 14px 0 rgba(0,0,0,0.1);
+                border-radius: 32px;
+                height: 48px;
+                cursor: pointer;
+                &:focus{
+                    outline:0;
+                }
+            }
+            .logoutButton{
+                margin:0 8px;
+                font-size: 16px;
+                font-weight: 700;
+                padding: 12px 32px;
+                width: 200px;
+                border:0;
+                background-color: white;
+                box-shadow: 0 4px 14px 0 rgba(0,0,0,0.1);
+                border-radius: 32px;
+                height: 48px;
+                cursor: pointer;
+                &:focus{
+                    outline:0;
+                }
+            
+            }
         }
         .mainContainer{
             display: flex;
@@ -109,6 +143,8 @@ svg{
             .titleWrapper{
                 display: flex;
                 justify-content: center;
+                margin:0 8px;
+
                 .titleCommon(){
                     font-weight: 700;
                     font-size: 24px;
@@ -129,20 +165,22 @@ svg{
             }
 
             .searchCard{
-                border: @border-base;
                 border-radius: 4px;
                 width: 560px;
+                margin:0 8px;
                 .searchResultContainer{
+                    border: @border-base;
                     padding:16px;
+                    overflow: auto;
                 }
             }
             .recommendCard{
-                border: @border-base;
                 border-radius: 4px;
                 width: 560px;
+                margin:0 8px;
                 .recommendContainer{
-                    padding:16px;
                     .recommendTypeContainer{
+                        padding:16px 16px 0 16px;
                         height: 64px;
                         display: flex;
                         .recommendType(){
@@ -160,18 +198,20 @@ svg{
                         }
                     }
                     .recommendContent{
-                    border: @border-base;
-
+                        padding:16px;
+                        border: @border-base;
                         height: 260px;
                         overflow: auto;
                     }
                 }
             }
             .playlistCard{
-                border: @border-base;
                 width: 560px;
                 border-radius: 4px;
+                margin:0 8px;
                 .playlistContainer{
+                    border: @border-base;
+                    overflow: auto;
                     padding: 16px;
                 }
             }
@@ -215,12 +255,17 @@ svg{
         &:focus{
             outline:0;
         }
+        &:disabled{
+            cursor: not-allowed;
+            background-color: lighten(@theme-color, 30%);
+        }
     }
 }
 
 .player{
     position: fixed;
-    top: calc(@header-height + 8px);
+    // top: calc(@header-height + 8px);
+    bottom: 16px;
     right: 16px;
     width:360px;
     height: 80px;
@@ -262,5 +307,17 @@ svg{
                 cursor: pointer;
             }
         }
+    }
+}
+
+.messageRow{
+    height: 80px;
+    display: flex;
+    border: 2px solid @theme-color;
+    .message{
+        font-weight: 700;
+        color: @theme-color;
+        margin: auto 16px;
+        font-size: 18px;
     }
 }

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState, useRef } from 'react';
 import { GetStaticProps, InferGetStaticPropsType } from 'next';
-import Div100vh from 'react-div-100vh'
+import Div100vh, { use100vh } from 'react-div-100vh'
 import styles from '@/styles/index.module.less';
 import useSearchTracksApi from '@/lib/hook/useSearchTracksApi';
 import { AiFillGithub, AiOutlineSave } from "react-icons/ai";
@@ -12,9 +12,10 @@ import TrackCard from '@/lib/component/TrackCard';
 import moment from 'moment';
 import useRecommendTracksApi from '@/lib/hook/useRecommendTracksApi';
 import axios from 'axios';
+import { Element, scroller } from 'react-scroll';
 
 const Index = ({ loginPath }: InferGetStaticPropsType<typeof getStaticProps>) => {
-    const { data: loginData } = useLoginApi();
+    const { data: loginData, error: loginError, mutate: loginMutate } = useLoginApi();
     const [query, setQuery] = useState<string[]>([]);
     const { data: searchData, isValidating: searchLoading, mutate: searchMutate } = useSearchTracksApi({ query });
     const playerRef = useRef<Spotify.SpotifyPlayer | null>(null);
@@ -29,8 +30,11 @@ const Index = ({ loginPath }: InferGetStaticPropsType<typeof getStaticProps>) =>
         recommendTargetTrack ? { track: recommendTargetTrack } : undefined
     );
     const seekbarRef = useRef<HTMLDivElement | null>(null);
-    const [playingTrackPosition, setPlayingTrackPosition] = useState<number>(0)
-
+    const [playingTrackPosition, setPlayingTrackPosition] = useState<number>(0);
+    const height100vh = use100vh();
+    const [savePlaylistLoading, setSavePlaylistLoading] = useState<boolean>(false);
+    const [playlistId, setPlaylistId] = useState<string>();
+    const inputRef = useRef<HTMLInputElement>(null)
 
     const login = useCallback(() => {
         window.location.href = loginPath;
@@ -48,6 +52,12 @@ const Index = ({ loginPath }: InferGetStaticPropsType<typeof getStaticProps>) =>
             setActiveTab('search');
         }
     }, [recommendTargetTrack]);
+
+    useEffect(()=>{
+        if(activeTab === 'search'){
+            inputRef.current?.focus();
+        }
+    },[activeTab])
 
     useEffect(() => {
         if (loginData && loginData.accessToken) {
@@ -150,174 +160,218 @@ const Index = ({ loginPath }: InferGetStaticPropsType<typeof getStaticProps>) =>
                     </h2>
                     </div>
                     <div className={styles.signin}>
-                        <button className={styles.button} onClick={login}>
-                            <FaSpotify className={styles.icon} />
-                            Sign in with Spotify
-                    </button>
-                    </div>
-                    <div className={styles.mainContainer}>
-                        <div>
-                            <div className={styles.titleWrapper}>
-                                <div
-                                    className={activeTab === 'search' ? styles.title : styles.titleUnselected}
-                                    onClick={() => { setActiveTab('search') }}
-                                >
-                                    Search
-                                </div>
-                                <div
-                                    className={activeTab === 'recommend' ? styles.title : styles.titleUnselected}
-                                    onClick={() => { setActiveTab('recommend') }}
-                                >
-                                    Recommend
-                                </div>
+                        {(loginData && !loginError) ? (
+                            <div>
+                                <button className={styles.startButton} onClick={() => {
+                                    scroller.scrollTo('mainContainer', {
+                                        offset: -48,
+                                        smooth: true,
+                                    });
+                                    inputRef.current?.focus();
+                                }}>Start mix</button>
+                                <button className={styles.logoutButton}
+                                    onClick={async () => {
+                                        await axios.post('/api/auth/logout');
+                                        loginMutate();
+                                    }}>Logout</button>
                             </div>
-                            {activeTab === 'search' ? (
-                                <div className={styles.searchCard}>
+                        ) : (
+                                <button className={styles.signinButton} onClick={login}>
+                                    <FaSpotify className={styles.icon} />
+                                    Sign in with Spotify
+                                </button>
+                            )}
+
+                    </div>
+                    <Element name="mainContainer">
+                        <div className={styles.mainContainer}>
+                            <div>
+                                <div className={styles.titleWrapper}>
+                                    <div
+                                        className={activeTab === 'search' ? styles.title : styles.titleUnselected}
+                                        onClick={() => { setActiveTab('search') }}
+                                    >
+                                        Search
+                                </div>
+                                    <div
+                                        className={activeTab === 'recommend' ? styles.title : styles.titleUnselected}
+                                        onClick={() => { setActiveTab('recommend') }}
+                                    >
+                                        Recommend
+                                </div>
+                                </div>
+                                {activeTab === 'search' ? (
+                                    <div style={!loginData ? { filter: 'blur(8px)', pointerEvents: 'none' } : {}} className={styles.searchCard}>
+                                        <div className={styles.inputContainer}>
+                                            <input
+                                                ref={inputRef}
+                                                className={styles.input}
+                                                placeholder="Search Tracks"
+                                                onChange={(e) => { setQuery(e.target.value.replace(/　/g, ' ').split(' ')) }}
+                                            />
+                                        </div>
+                                        <div className={styles.searchResultContainer} style={{ height: height100vh ? height100vh - 210 : 'calc(100vh - 210px)' }}>
+                                            {searchData && searchData.tracks.map((track) => {
+                                                return (
+                                                    <TrackCard
+                                                        key={track.id}
+                                                        track={track}
+                                                        isPlaying={isPlaying}
+                                                        setIsPlaying={setIsPlaying}
+                                                        playingTrack={playingTrack}
+                                                        setPlayingTrack={setPlayingTrack}
+                                                        playerRef={playerRef}
+                                                        deviceId={deviceId}
+                                                        inPlaylist={false}
+                                                        playlistContent={playlistContent}
+                                                        setPlaylistContent={setPlaylistContent}
+                                                        recommendTargetTrack={recommendTargetTrack}
+                                                        setRecommendTargetTrack={setRecommendTargetTrack}
+                                                    />
+                                                )
+                                            })}
+                                        </div>
+                                    </div>
+                                ) : (
+                                        <div className={styles.recommendCard} style={!loginData ? { filter: 'blur(8px)', pointerEvents: 'none' } : {}}>
+                                            <div className={styles.recommendContainer} style={{ height: height100vh ? height100vh - 210 + 64 : 'calc(100vh - 210px + 64px)' }}>
+                                                <div className={styles.recommendTypeContainer}>
+                                                    <div className={styles.recommendTypeUpper}>Get High</div>
+                                                </div>
+                                                <div className={styles.recommendContent} style={{ height: height100vh ? (height100vh - 210) / 2 - 64 : 'calc(calc(100vh - 210px)/2 - 64px)' }}>
+                                                    {recommendData && recommendData.upperTracks.map((track) => {
+                                                        return (
+                                                            <TrackCard
+                                                                key={track.id}
+                                                                track={track}
+                                                                isPlaying={isPlaying}
+                                                                setIsPlaying={setIsPlaying}
+                                                                playingTrack={playingTrack}
+                                                                setPlayingTrack={setPlayingTrack}
+                                                                playerRef={playerRef}
+                                                                deviceId={deviceId}
+                                                                inPlaylist={false}
+                                                                playlistContent={playlistContent}
+                                                                setPlaylistContent={setPlaylistContent}
+                                                                recommendTargetTrack={recommendTargetTrack}
+                                                                setRecommendTargetTrack={setRecommendTargetTrack}
+                                                            />
+                                                        )
+                                                    })}
+                                                </div>
+                                                <div className={styles.recommendTypeContainer}>
+                                                    <div className={styles.recommendTypeDowner}>Chill Out</div>
+                                                </div>
+                                                <div className={styles.recommendContent} style={{ height: height100vh ? (height100vh - 210) / 2 - 64 : 'calc(calc(100vh - 210px)/2 - 64px)' }}>
+                                                    {recommendData && recommendData.downerTracks.map((track) => {
+                                                        return (
+                                                            <TrackCard
+                                                                key={track.id}
+                                                                track={track}
+                                                                isPlaying={isPlaying}
+                                                                setIsPlaying={setIsPlaying}
+                                                                playingTrack={playingTrack}
+                                                                setPlayingTrack={setPlayingTrack}
+                                                                playerRef={playerRef}
+                                                                deviceId={deviceId}
+                                                                inPlaylist={false}
+                                                                playlistContent={playlistContent}
+                                                                setPlaylistContent={setPlaylistContent}
+                                                                recommendTargetTrack={recommendTargetTrack}
+                                                                setRecommendTargetTrack={setRecommendTargetTrack}
+                                                            />
+                                                        )
+                                                    })}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                            </div>
+                            <div>
+                                <div className={styles.titleWrapper}>
+                                    <div className={styles.title}>Playlist</div>
+                                </div>
+                                <div className={styles.playlistCard} style={!loginData ? { filter: 'blur(8px)', pointerEvents: 'none' } : {}}>
                                     <div className={styles.inputContainer}>
                                         <input
                                             className={styles.input}
-                                            placeholder="Search Tracks"
-                                            onChange={(e) => { setQuery(e.target.value.replace(/　/g, ' ').split(' ')) }}
+                                            placeholder="Edit Playlist Name"
+                                            onChange={(e) => { setPlaylistName(e.target.value) }}
+                                            value={playlistName}
                                         />
-                                    </div>
-                                    <div className={styles.searchResultContainer}>
-                                        {searchData && searchData.tracks.map((track) => {
-                                            return (
-                                                <TrackCard
-                                                    key={track.id}
-                                                    track={track}
-                                                    isPlaying={isPlaying}
-                                                    setIsPlaying={setIsPlaying}
-                                                    playingTrack={playingTrack}
-                                                    setPlayingTrack={setPlayingTrack}
-                                                    playerRef={playerRef}
-                                                    deviceId={deviceId}
-                                                    inPlaylist={false}
-                                                    playlistContent={playlistContent}
-                                                    setPlaylistContent={setPlaylistContent}
-                                                    recommendTargetTrack={recommendTargetTrack}
-                                                    setRecommendTargetTrack={setRecommendTargetTrack}
-                                                />
-                                            )
-                                        })}
-                                    </div>
-                                </div>
-                            ) : (
-                                    <div className={styles.recommendCard}>
-                                        <div className={styles.recommendContainer}>
-                                            <div className={styles.recommendTypeContainer}>
-                                                <div className={styles.recommendTypeUpper}>Get High</div>
-                                            </div>
-                                            <div className={styles.recommendContent}>
-                                                {recommendData && recommendData.upperTracks.map((track) => {
-                                                    return (
-                                                        <TrackCard
-                                                            key={track.id}
-                                                            track={track}
-                                                            isPlaying={isPlaying}
-                                                            setIsPlaying={setIsPlaying}
-                                                            playingTrack={playingTrack}
-                                                            setPlayingTrack={setPlayingTrack}
-                                                            playerRef={playerRef}
-                                                            deviceId={deviceId}
-                                                            inPlaylist={false}
-                                                            playlistContent={playlistContent}
-                                                            setPlaylistContent={setPlaylistContent}
-                                                            recommendTargetTrack={recommendTargetTrack}
-                                                            setRecommendTargetTrack={setRecommendTargetTrack}
-                                                        />
-                                                    )
-                                                })}
-                                            </div>
-                                            <div className={styles.recommendTypeContainer}>
-                                                <div className={styles.recommendTypeDowner}>Chill Out</div>
-                                            </div>
-                                            <div className={styles.recommendContent}>
-                                                {recommendData && recommendData.downerTracks.map((track) => {
-                                                    return (
-                                                        <TrackCard
-                                                            key={track.id}
-                                                            track={track}
-                                                            isPlaying={isPlaying}
-                                                            setIsPlaying={setIsPlaying}
-                                                            playingTrack={playingTrack}
-                                                            setPlayingTrack={setPlayingTrack}
-                                                            playerRef={playerRef}
-                                                            deviceId={deviceId}
-                                                            inPlaylist={false}
-                                                            playlistContent={playlistContent}
-                                                            setPlaylistContent={setPlaylistContent}
-                                                            recommendTargetTrack={recommendTargetTrack}
-                                                            setRecommendTargetTrack={setRecommendTargetTrack}
-                                                        />
-                                                    )
-                                                })}
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-                        </div>
-                        <div>
-                            <div className={styles.titleWrapper}>
-                                <div className={styles.title}>Playlist</div>
-                            </div>
-                            <div className={styles.playlistCard}>
-                                <div className={styles.inputContainer}>
-                                    <input
-                                        className={styles.input}
-                                        placeholder="Edit Playlist Name"
-                                        onChange={(e) => { setPlaylistName(e.target.value) }}
-                                        value={playlistName}
-                                    />
-                                    <button className={styles.save}
-                                        onClick={async () => {
-                                            const param = {
-                                                name: playlistName,
-                                                uris: playlistContent.map((track) => (track.uri)),
-                                                isPublic: false
-                                            }
-                                            try {
-                                                axios.post('/api/playlist/save', param);
-                                            } catch {
+                                        {savePlaylistLoading ? (
+                                            <button disabled className={styles.save}>
+                                                Saving...
+                                            </button>
+                                        ) : (
+                                                <button className={styles.save}
+                                                    disabled={savePlaylistLoading || playlistContent.length < 1}
+                                                    onClick={async () => {
+                                                        setSavePlaylistLoading(true);
+                                                        const param = {
+                                                            name: playlistName,
+                                                            uris: playlistContent.map((track) => (track.uri)),
+                                                            isPublic: false,
+                                                            playlistId
+                                                        }
+                                                        try {
+                                                            const response = await axios.post('/api/playlist/save', param);
+                                                            setPlaylistId(response.data.playlistId);
+                                                        } catch (e) {
+                                                            console.log(e.message);
+                                                            setPlaylistId(undefined);
+                                                        }
+                                                        setSavePlaylistLoading(false);
+                                                    }}>
+                                                    <AiOutlineSave />
+                                                    {playlistId ? 'Update' : 'Save'}
+                                                </button>
+                                            )}
 
-                                            }
-                                        }}>
-                                        <AiOutlineSave />
-                                        Save
-                                    </button>
-                                </div>
-                                <div className={styles.playlistContainer}>
-                                    {playlistContent && playlistContent.map((track) => {
-                                        return (
-                                            <TrackCard
-                                                key={track.id}
-                                                track={track}
-                                                isPlaying={isPlaying}
-                                                setIsPlaying={setIsPlaying}
-                                                playingTrack={playingTrack}
-                                                setPlayingTrack={setPlayingTrack}
-                                                playerRef={playerRef}
-                                                deviceId={deviceId}
-                                                inPlaylist
-                                                playlistContent={playlistContent}
-                                                setPlaylistContent={setPlaylistContent}
-                                                recommendTargetTrack={recommendTargetTrack}
-                                                setRecommendTargetTrack={setRecommendTargetTrack}
-                                            />
-                                        )
-                                    })}
+                                    </div>
+                                    <div className={styles.playlistContainer} style={{ height: height100vh ? height100vh - 210 : 'calc(100vh - 210px)' }}>
+                                        {playlistContent.length > 0
+                                            ? (<>
+                                                {playlistContent.map((track) => {
+                                                    return (
+                                                        <TrackCard
+                                                            key={track.id}
+                                                            track={track}
+                                                            isPlaying={isPlaying}
+                                                            setIsPlaying={setIsPlaying}
+                                                            playingTrack={playingTrack}
+                                                            setPlayingTrack={setPlayingTrack}
+                                                            playerRef={playerRef}
+                                                            deviceId={deviceId}
+                                                            inPlaylist
+                                                            playlistContent={playlistContent}
+                                                            setPlaylistContent={setPlaylistContent}
+                                                            recommendTargetTrack={recommendTargetTrack}
+                                                            setRecommendTargetTrack={setRecommendTargetTrack}
+                                                        />
+                                                    )
+                                                })}
+                                                <div className={styles.messageRow}>
+                                                    <div className={styles.message}>Add next track by Recommend or Search.</div>
+                                                </div>
+                                            </>
+                                            )
+                                            : (
+                                                <div className={styles.messageRow}>
+                                                    <div className={styles.message}>Add first track by Search.</div>
+                                                </div>
+                                            )}
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </Element>
                 </div>
                 <footer className={styles.footer}>© 2021 Yuki Oshima</footer>
             </Div100vh>
         </div >
     );
 }
-
-
 
 export const getStaticProps: GetStaticProps = async () => {
     const scopes = ['streaming', 'user-read-email', 'user-read-private', 'playlist-modify-public', 'playlist-modify-private'];

@@ -32,7 +32,7 @@ const TrackCard: React.FunctionComponent<{
     setRecommendTargetTrack
 }) => {
         return (
-            <div className={classnames(styles.trackCard, track.id === recommendTargetTrack?.id && styles.recommendedTrack)} key={track.id}>
+            <div className={classnames(styles.trackCard, (track.id === recommendTargetTrack?.id && inPlaylist) && styles.recommendedTrack)} key={track.id}>
                 <img
                     className={styles.cover}
                     src={track.album.images.find((image) => (image.height === 300))?.url}
@@ -84,6 +84,7 @@ const TrackCard: React.FunctionComponent<{
                                                 });
                                             setIsPlaying(true);
                                         } catch (e) {
+                                            console.log(e.message);
                                             setPlayingTrack();
                                         }
                                     }

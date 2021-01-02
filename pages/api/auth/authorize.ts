@@ -1,14 +1,8 @@
 import axios from 'axios';
 import withSession from '@/lib/middleware/session';
 import { ApiHandler } from '@/lib/type/handler';
-
-interface SpotifyApiResponse {
-    access_token: string,
-    token_type: string,
-    scope: string,
-    expires_in: number,
-    refresh_token: string
-}
+import { SpotifyAuthApiResponse } from '@/lib/type/spotifyapi';
+import moment from 'moment';
 
 interface SpotifyUserResponse {
     country: string,
@@ -26,7 +20,7 @@ const authorize: ApiHandler<{}, {}> = async (req, res) => {
         params.append('code', code as string);
         params.append('redirect_uri', process.env.RETURN_TO as string);
 
-        const response = await axios.post<SpotifyApiResponse>(
+        const response = await axios.post<SpotifyAuthApiResponse>(
             'https://accounts.spotify.com/api/token',
             params,
             {
@@ -49,6 +43,8 @@ const authorize: ApiHandler<{}, {}> = async (req, res) => {
             userId: userResponse.data.id,
             accessToken: response.data.access_token,
             refreshToken: response.data.refresh_token,
+            authedTs: moment().format('YYYY-MM-DD HH:mm:ss'),
+            expiresIn: response.data.expires_in
         });
         await req.session.save();
         res.status(200).redirect('/');

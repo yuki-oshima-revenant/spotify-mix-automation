@@ -8,10 +8,13 @@ const useLoginApi = () => {
     const { data, error, isValidating, mutate } = useSWR<ResponseBody>(
         '/api/auth/checklogin',
         fetcher,
-        { shouldRetryOnError: false }
+        {
+            shouldRetryOnError: false,
+            refreshInterval: 5 * 60 * 1000
+        }
     );
 
-    return { data, isValidating, mutate }
+    return { data,error, isValidating, mutate }
 }
 
 export default useLoginApi;
