@@ -4,8 +4,17 @@ class MyDocument extends Document {
 
     render() {
         return (
-            <Html>
-                <Head />
+            <Html lang="ja">
+                <Head>
+                    <meta property="og:url" content="https://automisce.unronritaro.net" />
+                    <meta property="og:type" content="website" />
+                    <meta property="og:title" content="AUTOMISCE - Automate Your Mix with Spotify API" />
+                    <meta property="og:description" content="Automate Your Mix with Spotify API" />
+                    <meta property="og:image" content="/top.png" />
+                    <meta property="og:site_name" content="AUTOMISCE - Automate Your Mix with Spotify API" />
+                    <meta name="twitter:card" content="summary_large_image" />
+                    <meta name="description" content="Automate Your Mix with Spotify API"></meta>
+                </Head>
                 <body>
                     <Main />
                     <NextScript />

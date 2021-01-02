@@ -72,11 +72,11 @@ const TrackCard: React.FunctionComponent<{
                                 <AiFillPlayCircle
                                     className={styles.button}
                                     onClick={() => {
-                                        // const userAgent = window.navigator.userAgent.toLowerCase();
-                                        // if (userAgent.indexOf('iphone') != -1 || userAgent.indexOf('ipad') != -1 || userAgent.indexOf('android') != -1) {
-                                        //     window.open(`https://open.spotify.com/track/${track.id}`)
-                                        //     return;
-                                        // }
+                                        const userAgent = window.navigator.userAgent.toLowerCase();
+                                        if (userAgent.indexOf('iphone') != -1 || userAgent.indexOf('ipad') != -1 || userAgent.indexOf('android') != -1) {
+                                            window.open(`https://open.spotify.com/track/${track.id}`)
+                                            return;
+                                        }
                                         if (playingTrack?.id === track.id) {
                                             playerRef.current?.togglePlay();
                                         } else {

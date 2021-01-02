@@ -41,6 +41,14 @@ const Index = ({ loginPath }: InferGetStaticPropsType<typeof getStaticProps>) =>
         window.location.href = loginPath;
     }, [loginPath]);
 
+    useEffect(()=>{
+        window.scrollTo({
+            top: 0,
+            left: 0,
+            behavior: 'smooth'
+          });
+    },[loginError])
+
     useEffect(() => {
         searchMutate();
     }, [query]);
@@ -224,7 +232,7 @@ const Index = ({ loginPath }: InferGetStaticPropsType<typeof getStaticProps>) =>
                                 </div>
                                 </div>
                                 {activeTab === 'search' ? (
-                                    <div style={!loginData ? { filter: 'blur(8px)', pointerEvents: 'none' } : {}} className={styles.searchCard}>
+                                    <div style={!(loginData && !loginError)  ? { filter: 'blur(8px)', pointerEvents: 'none' } : {}} className={styles.searchCard}>
                                         <div className={styles.inputContainer}>
                                             <input
                                                 ref={inputRef}
@@ -256,7 +264,7 @@ const Index = ({ loginPath }: InferGetStaticPropsType<typeof getStaticProps>) =>
                                         </div>
                                     </div>
                                 ) : (
-                                        <div className={styles.recommendCard} style={!loginData ? { filter: 'blur(8px)', pointerEvents: 'none' } : {}}>
+                                        <div className={styles.recommendCard} style={!(loginData && !loginError)  ? { filter: 'blur(8px)', pointerEvents: 'none' } : {}}>
                                             <div className={styles.recommendContainer} style={contentStyle(true, false)}>
                                                 <div className={styles.recommendTypeContainer}>
                                                     <div className={styles.recommendTypeUpper}>Upper Tracks</div>
@@ -314,7 +322,7 @@ const Index = ({ loginPath }: InferGetStaticPropsType<typeof getStaticProps>) =>
                                 <div className={styles.titleWrapper}>
                                     <div className={styles.titlePlaylist}>Playlist</div>
                                 </div>
-                                <div className={styles.playlistCard} style={!loginData ? { filter: 'blur(8px)', pointerEvents: 'none' } : {}}>
+                                <div className={styles.playlistCard} style={!(loginData && !loginError)  ? { filter: 'blur(8px)', pointerEvents: 'none' } : {}}>
                                     <div className={styles.inputContainer}>
                                         <input
                                             className={styles.input}
