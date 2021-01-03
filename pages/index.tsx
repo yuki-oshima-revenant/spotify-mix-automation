@@ -266,7 +266,7 @@ const Index = ({ loginPath }: InferGetStaticPropsType<typeof getStaticProps>) =>
                                                             const response = await axios.post('/api/playlist/save', param);
                                                             setPlaylistId(response.data.playlistId);
                                                         } catch (e) {
-                                                            console.log(e.message);
+                                                            // console.log(e.message);
                                                             setPlaylistId(undefined);
                                                         }
                                                         setSavePlaylistLoading(false);

@@ -90,7 +90,7 @@ const TrackCard: React.FunctionComponent<{
                                                     });
                                                 setIsPlaying(true);
                                             } catch (e) {
-                                                console.log(e.message);
+                                                // console.log(e.message);
                                                 setPlayingTrack();
                                             }
                                         }
