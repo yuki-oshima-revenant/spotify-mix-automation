@@ -7,8 +7,8 @@ import getAudioFeatures from '@/lib/util/getAudioFeatures';
 type RecommendType = 'upper' | 'downer';
 
 const getRecommendTracks = async (audioFeature: AudioFeature, accessToken: string, type: RecommendType) => {
-    const minDanceability = type === 'upper' ? audioFeature.danceability : audioFeature.danceability * 0.8;
-    const maxDanceability = type === 'upper' ? audioFeature.danceability * 1.2 : audioFeature.danceability;
+    const minDanceability = audioFeature.danceability * 0.8;
+    const maxDanceability = audioFeature.danceability * 1.2;
     const minEnergy = type === 'upper' ? audioFeature.energy : audioFeature.energy * 0.8;
     const maxEnergy = type === 'upper' ? audioFeature.energy * 1.2 : audioFeature.energy;
 
@@ -50,7 +50,7 @@ export interface ResponseBody {
 const recommendedTracks: ApiHandler<RequestBody, ResponseBody> = async (req, res) => {
     try {
         const audioFeature = req.body.track.audioFeatures;
-        if(!audioFeature){
+        if (!audioFeature) {
             res.status(500).send('invalid parameter');
             return;
         }

@@ -5,6 +5,9 @@ svg{
     vertical-align: text-bottom;
     cursor: pointer;
 }
+input:disabled{
+    cursor: not-allowed;
+}
 
 .header(){
     position: fixed;
@@ -89,7 +92,7 @@ svg{
         .signin{
             text-align: center;
             margin-top: 48px;
-            margin-bottom: 128px;
+            margin-bottom: 104px;
             .buttonCommon(){
                 font-size: 16px;
                 padding: 12px 32px;
@@ -160,21 +163,27 @@ svg{
                     padding: 0 12px;
                     cursor: pointer;
                     letter-spacing: -0.03em;
+                    @media screen and(max-width:@break-point) {
+                        font-size: 18px;
+                    }
                 }
                 .title{
-                    .titleCommon();
-                    border-bottom: 3px solid @theme-color;
-                }
-                .titleUnselected{
-                    .titleCommon();
-                    color: #999;
-                }
-                .titlePlaylist{
                     .titleCommon();
                     border-bottom: 3px solid @theme-color;
                     @media screen and(max-width:@break-point) {
                         margin-top: 32px;
                     }
+                }
+                .titleUnselected{
+                    .titleCommon();
+                    color: #999;
+                    @media screen and(max-width:@break-point) {
+                        margin-top: 32px;
+                    }
+                }
+                .titlePlaylist{
+                    .titleCommon();
+                    border-bottom: 3px solid @theme-color;
                 }
             }
 
@@ -184,7 +193,6 @@ svg{
                 margin:0 8px;
                 @media screen and(max-width:@break-point-narrow) {
                     width: 360px;
-
                 }
             }
             .searchCard{
@@ -202,10 +210,16 @@ svg{
                         padding:16px 16px 0 16px;
                         height: 64px;
                         display: flex;
+                        @media screen and(max-width:@break-point-narrow) {
+                            height: 48px;
+                        }
                         .recommendType(){
                             font-size: 20px;
                             font-weight: 700;
                             margin: auto 0;
+                            @media screen and(max-width:@break-point-narrow) {
+                                font-size: 16px;
+                            }
                         }
                         .recommendTypeUpper{
                             .recommendType();
@@ -245,6 +259,9 @@ svg{
 
 .inputContainer{
     padding:16px;
+    @media screen and(max-width:@break-point-narrow) {
+        padding:8px 16px;
+    }
     .input{
         height: 32px;
         border: 0;
@@ -255,6 +272,9 @@ svg{
         &:focus{
             outline:0;
             border-bottom: 2px solid @theme-color;
+        }
+        @media screen and(max-width:@break-point-narrow) {
+            font-size: 14px;
         }
     }
     .save{
@@ -330,11 +350,14 @@ svg{
 .messageRow{
     height: 80px;
     display: flex;
-    border: 2px solid @theme-color;
+    border: 2px dashed @theme-color;
     .message{
         font-weight: 700;
         color: @theme-color;
         margin: auto 16px;
         font-size: 18px;
+        @media screen and(max-width:@break-point) {
+            font-size: 14px;
+        }
     }
 }

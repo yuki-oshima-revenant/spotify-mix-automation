@@ -10,10 +10,10 @@ class MyDocument extends Document {
                     <meta property="og:type" content="website" />
                     <meta property="og:title" content="AUTOMISCE" />
                     <meta property="og:description" content="Automate Your Mix with Spotify API" />
-                    <meta property="og:image" content="/top.png" />
+                    <meta property="og:image" content="https://automisce.unronritaro.net/top.png" />
                     <meta property="og:site_name" content="AUTOMISCE" />
                     <meta name="twitter:card" content="summary_large_image" />
-                    <meta name="twitter:image" content="/top.png" />
+                    <meta name="twitter:image" content="https://automisce.unronritaro.net/top.png" />
                     <meta name="description" content="Automate Your Mix with Spotify API"></meta>
                 </Head>
                 <body>

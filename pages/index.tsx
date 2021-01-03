@@ -36,18 +36,19 @@ const Index = ({ loginPath }: InferGetStaticPropsType<typeof getStaticProps>) =>
     const [playlistId, setPlaylistId] = useState<string>();
     const inputRef = useRef<HTMLInputElement>(null);
     const playlistContentRef = useRef<HTMLDivElement>(null);
+    const [pageWidth, setPagewidth] = useState<number>(1000);
 
     const login = useCallback(() => {
         window.location.href = loginPath;
     }, [loginPath]);
 
-    useEffect(()=>{
+    useEffect(() => {
         window.scrollTo({
             top: 0,
             left: 0,
             behavior: 'smooth'
-          });
-    },[loginError])
+        });
+    }, [loginError])
 
     useEffect(() => {
         searchMutate();
@@ -75,20 +76,35 @@ const Index = ({ loginPath }: InferGetStaticPropsType<typeof getStaticProps>) =>
         }
     }, [playlistContent]);
 
-    const contentStyle = useCallback((isRecommend: boolean, isSmallBox: boolean) => {
-        if (process.browser) {
-            const divider = window.innerWidth <= 996 ? 2 : 1;
-            if (isRecommend) {
-                if (isSmallBox) {
-                    return { height: height100vh ? (((height100vh - 210 + 64) / divider) / 2 - 64) : 'calc(calc(100vh - 210px)/2 - 64px - 32px)' };
-                } else {
-                    return { height: height100vh ? (height100vh - 210 + 64) / divider : 'calc(100vh - 210px + 64px)' };
+    useEffect(() => {
+        if (window) {
+            setPagewidth(window.innerWidth);
+        }
+    }, [])
+
+    const contentStyle = useCallback((isPlaylist: boolean, isRecommend: boolean, isSmallBox: boolean) => {
+        const isNarrow = pageWidth <= 996;
+        if (isPlaylist && isNarrow) {
+            return { height: '200px' };
+        }
+        if (isRecommend) {
+            if (isSmallBox) {
+                if (isNarrow) {
+                    return { height: 'calc(calc(320px + 48px) / 2 - 48px)' };
                 }
+                return { height: height100vh ? ((height100vh - 210 + 64) / 2 - 64) : 'calc(calc(100vh - 210px)/2 - 64px - 32px)' };
+            } else {
+                if (isNarrow) {
+                    return { height: 'calc(320px + 48px)' };
+                }
+                return { height: height100vh ? (height100vh - 210 + 64) : 'calc(100vh - 210px + 64px)' };
             }
-            return { height: height100vh ? (height100vh - 210) / divider : 'calc(100vh - 210px)' }
+        }
+        if (isNarrow) {
+            return { height: '320px' };
         }
         return { height: height100vh ? (height100vh - 210) : 'calc(100vh - 210px)' }
-    }, [height100vh]);
+    }, [height100vh, pageWidth]);
 
     useEffect(() => {
         if (loginData && loginData.accessToken) {
@@ -212,123 +228,24 @@ const Index = ({ loginPath }: InferGetStaticPropsType<typeof getStaticProps>) =>
                                     Sign in with Spotify
                                 </button>
                             )}
-
                     </div>
                     <Element name="mainContainer">
                         <div className={styles.mainContainer}>
                             <div>
                                 <div className={styles.titleWrapper}>
-                                    <div
-                                        className={activeTab === 'search' ? styles.title : styles.titleUnselected}
-                                        onClick={() => { setActiveTab('search') }}
-                                    >
-                                        Search
-                                </div>
-                                    <div
-                                        className={activeTab === 'recommend' ? styles.title : styles.titleUnselected}
-                                        onClick={() => { setActiveTab('recommend') }}
-                                    >
-                                        Recommend
-                                </div>
-                                </div>
-                                {activeTab === 'search' ? (
-                                    <div style={!(loginData && !loginError)  ? { filter: 'blur(8px)', pointerEvents: 'none' } : {}} className={styles.searchCard}>
-                                        <div className={styles.inputContainer}>
-                                            <input
-                                                ref={inputRef}
-                                                className={styles.input}
-                                                placeholder="Search Tracks"
-                                                onChange={(e) => { setQuery(e.target.value.replace(/　/g, ' ').split(' ')) }}
-                                            />
-                                        </div>
-                                        <div className={styles.searchResultContainer} style={contentStyle(false, false)}>
-                                            {searchData && searchData.tracks.map((track) => {
-                                                return (
-                                                    <TrackCard
-                                                        key={track.id}
-                                                        track={track}
-                                                        isPlaying={isPlaying}
-                                                        setIsPlaying={setIsPlaying}
-                                                        playingTrack={playingTrack}
-                                                        setPlayingTrack={setPlayingTrack}
-                                                        playerRef={playerRef}
-                                                        deviceId={deviceId}
-                                                        inPlaylist={false}
-                                                        playlistContent={playlistContent}
-                                                        setPlaylistContent={setPlaylistContent}
-                                                        recommendTargetTrack={recommendTargetTrack}
-                                                        setRecommendTargetTrack={setRecommendTargetTrack}
-                                                    />
-                                                )
-                                            })}
-                                        </div>
-                                    </div>
-                                ) : (
-                                        <div className={styles.recommendCard} style={!(loginData && !loginError)  ? { filter: 'blur(8px)', pointerEvents: 'none' } : {}}>
-                                            <div className={styles.recommendContainer} style={contentStyle(true, false)}>
-                                                <div className={styles.recommendTypeContainer}>
-                                                    <div className={styles.recommendTypeUpper}>Upper Tracks</div>
-                                                </div>
-                                                <div className={styles.recommendContent} style={contentStyle(true, true)}>
-                                                    {recommendData && recommendData.upperTracks.map((track) => {
-                                                        return (
-                                                            <TrackCard
-                                                                key={track.id}
-                                                                track={track}
-                                                                isPlaying={isPlaying}
-                                                                setIsPlaying={setIsPlaying}
-                                                                playingTrack={playingTrack}
-                                                                setPlayingTrack={setPlayingTrack}
-                                                                playerRef={playerRef}
-                                                                deviceId={deviceId}
-                                                                inPlaylist={false}
-                                                                playlistContent={playlistContent}
-                                                                setPlaylistContent={setPlaylistContent}
-                                                                recommendTargetTrack={recommendTargetTrack}
-                                                                setRecommendTargetTrack={setRecommendTargetTrack}
-                                                            />
-                                                        )
-                                                    })}
-                                                </div>
-                                                <div className={styles.recommendTypeContainer}>
-                                                    <div className={styles.recommendTypeDowner}>Chill Out Tracks</div>
-                                                </div>
-                                                <div className={styles.recommendContent} style={contentStyle(true, true)}>
-                                                    {recommendData && recommendData.downerTracks.map((track) => {
-                                                        return (
-                                                            <TrackCard
-                                                                key={track.id}
-                                                                track={track}
-                                                                isPlaying={isPlaying}
-                                                                setIsPlaying={setIsPlaying}
-                                                                playingTrack={playingTrack}
-                                                                setPlayingTrack={setPlayingTrack}
-                                                                playerRef={playerRef}
-                                                                deviceId={deviceId}
-                                                                inPlaylist={false}
-                                                                playlistContent={playlistContent}
-                                                                setPlaylistContent={setPlaylistContent}
-                                                                recommendTargetTrack={recommendTargetTrack}
-                                                                setRecommendTargetTrack={setRecommendTargetTrack}
-                                                            />
-                                                        )
-                                                    })}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    )}
-                            </div>
-                            <div>
-                                <div className={styles.titleWrapper}>
                                     <div className={styles.titlePlaylist}>Playlist</div>
                                 </div>
-                                <div className={styles.playlistCard} style={!(loginData && !loginError)  ? { filter: 'blur(8px)', pointerEvents: 'none' } : {}}>
+                                <div
+                                    className={styles.playlistCard}
+                                // style={!(loginData && !loginError) ? { filter: 'blur(8px)', pointerEvents: 'none' } : {}}
+                                >
                                     <div className={styles.inputContainer}>
                                         <input
                                             className={styles.input}
                                             placeholder="Edit Playlist Name"
                                             onChange={(e) => { setPlaylistName(e.target.value) }}
                                             value={playlistName}
+                                            disabled={!(loginData && !loginError)}
                                         />
                                         {savePlaylistLoading ? (
                                             <button disabled className={styles.save}>
@@ -362,7 +279,7 @@ const Index = ({ loginPath }: InferGetStaticPropsType<typeof getStaticProps>) =>
                                     <div
                                         className={styles.playlistContainer}
                                         ref={playlistContentRef}
-                                        style={contentStyle(false, false)}
+                                        style={contentStyle(true, false, false)}
                                     >
                                         {playlistContent.length > 0
                                             ? (<>
@@ -397,6 +314,115 @@ const Index = ({ loginPath }: InferGetStaticPropsType<typeof getStaticProps>) =>
                                             )}
                                     </div>
                                 </div>
+                            </div>
+                            <div>
+                                <div className={styles.titleWrapper}>
+                                    <div
+                                        className={activeTab === 'search' ? styles.title : styles.titleUnselected}
+                                        onClick={() => { setActiveTab('search') }}
+                                    >
+                                        Search
+                                </div>
+                                    <div
+                                        className={activeTab === 'recommend' ? styles.title : styles.titleUnselected}
+                                        onClick={() => { setActiveTab('recommend') }}
+                                    >
+                                        Recommend
+                                </div>
+                                </div>
+                                {activeTab === 'search' ? (
+                                    <div
+                                        // style={!(loginData && !loginError) ? { filter: 'blur(8px)', pointerEvents: 'none' } : {}} 
+                                        className={styles.searchCard}
+                                    >
+                                        <div className={styles.inputContainer}>
+                                            <input
+                                                ref={inputRef}
+                                                className={styles.input}
+                                                placeholder="Search Tracks"
+                                                onChange={(e) => { setQuery(e.target.value.replace(/　/g, ' ').split(' ')) }}
+                                                disabled={!(loginData && !loginError)}
+                                            />
+                                        </div>
+                                        <div className={styles.searchResultContainer} style={contentStyle(false, false, false)}>
+                                            {searchData && searchData.tracks.map((track) => {
+                                                return (
+                                                    <TrackCard
+                                                        key={track.id}
+                                                        track={track}
+                                                        isPlaying={isPlaying}
+                                                        setIsPlaying={setIsPlaying}
+                                                        playingTrack={playingTrack}
+                                                        setPlayingTrack={setPlayingTrack}
+                                                        playerRef={playerRef}
+                                                        deviceId={deviceId}
+                                                        inPlaylist={false}
+                                                        playlistContent={playlistContent}
+                                                        setPlaylistContent={setPlaylistContent}
+                                                        recommendTargetTrack={recommendTargetTrack}
+                                                        setRecommendTargetTrack={setRecommendTargetTrack}
+                                                    />
+                                                )
+                                            })}
+                                        </div>
+                                    </div>
+                                ) : (
+                                        <div
+                                            className={styles.recommendCard}
+                                        // style={!(loginData && !loginError) ? { filter: 'blur(8px)', pointerEvents: 'none' } : {}}
+                                        >
+                                            <div className={styles.recommendContainer} style={contentStyle(false, true, false)}>
+                                                <div className={styles.recommendTypeContainer}>
+                                                    <div className={styles.recommendTypeUpper}>Upper Tracks</div>
+                                                </div>
+                                                <div className={styles.recommendContent} style={contentStyle(false, true, true)}>
+                                                    {recommendData && recommendData.upperTracks.map((track) => {
+                                                        return (
+                                                            <TrackCard
+                                                                key={track.id}
+                                                                track={track}
+                                                                isPlaying={isPlaying}
+                                                                setIsPlaying={setIsPlaying}
+                                                                playingTrack={playingTrack}
+                                                                setPlayingTrack={setPlayingTrack}
+                                                                playerRef={playerRef}
+                                                                deviceId={deviceId}
+                                                                inPlaylist={false}
+                                                                playlistContent={playlistContent}
+                                                                setPlaylistContent={setPlaylistContent}
+                                                                recommendTargetTrack={recommendTargetTrack}
+                                                                setRecommendTargetTrack={setRecommendTargetTrack}
+                                                            />
+                                                        )
+                                                    })}
+                                                </div>
+                                                <div className={styles.recommendTypeContainer}>
+                                                    <div className={styles.recommendTypeDowner}>Downer Tracks</div>
+                                                </div>
+                                                <div className={styles.recommendContent} style={contentStyle(false, true, true)}>
+                                                    {recommendData && recommendData.downerTracks.map((track) => {
+                                                        return (
+                                                            <TrackCard
+                                                                key={track.id}
+                                                                track={track}
+                                                                isPlaying={isPlaying}
+                                                                setIsPlaying={setIsPlaying}
+                                                                playingTrack={playingTrack}
+                                                                setPlayingTrack={setPlayingTrack}
+                                                                playerRef={playerRef}
+                                                                deviceId={deviceId}
+                                                                inPlaylist={false}
+                                                                playlistContent={playlistContent}
+                                                                setPlaylistContent={setPlaylistContent}
+                                                                recommendTargetTrack={recommendTargetTrack}
+                                                                setRecommendTargetTrack={setRecommendTargetTrack}
+                                                            />
+                                                        )
+                                                    })}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
                             </div>
                         </div>
                     </Element>
