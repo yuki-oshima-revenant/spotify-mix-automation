@@ -316,7 +316,7 @@ input:disabled{
         border-radius: 4px 0 0 4px;
     }
     .description{
-        padding:8px 8px 0 8px;
+        padding:8px;
         .name{
             display: inline-block;
             text-overflow: ellipsis;
@@ -324,6 +324,7 @@ input:disabled{
             overflow: hidden;
             width: 240px;
             font-weight: 600;
+            height: 20px;
         }
         .artist{
             display: inline-block;
@@ -332,16 +333,40 @@ input:disabled{
             overflow: hidden;
             width: 240px;
             font-size: 14px;
+            height:16px;
         }
         .controller{
             display: flex;
             margin-top: 4px;
             .seekbar{
                 margin:auto 0;
-                width: 240px;
+                width: 212px;
                 height: 6px;
                 border-radius: 4px;
                 background: linear-gradient(@theme-color, @theme-color) no-repeat #eee;
+                cursor: pointer;
+            }
+            .volumeButton{
+                margin-left: 12px;
+            }
+            .volumebarContainer{
+                position: fixed;
+                bottom: 40px;
+                right: 20px;
+                width:24px;
+                height: 120px;
+                box-shadow: 0 4px 14px 0 rgba(0,0,0,0.1);
+                border-radius: 4px;
+                z-index: 1001;
+                background-color: white;
+            }
+            .volumebar{
+                margin:8px auto;
+                height: 104px;
+                width: 6px;
+                border-radius: 4px;
+                background: linear-gradient(gray, gray) no-repeat #eee;
+                transform: rotate(180deg);
                 cursor: pointer;
             }
         }

@@ -4,7 +4,7 @@ import Div100vh, { use100vh } from 'react-div-100vh'
 import styles from '@/styles/index.module.less';
 import useSearchTracksApi from '@/lib/hook/useSearchTracksApi';
 import { AiFillGithub, AiOutlineSave } from "react-icons/ai";
-import { IoPlaySharp, IoPauseSharp } from 'react-icons/io5';
+import { IoPlaySharp, IoPauseSharp, IoVolumeMediumSharp } from 'react-icons/io5';
 import { FaSpotify } from "react-icons/fa";
 import useLoginApi from '@/lib/hook/useLoginApi';
 import { SearchTracksRecord } from '@/lib/type/spotifyapi';
@@ -31,6 +31,9 @@ const Index = ({ loginPath }: InferGetStaticPropsType<typeof getStaticProps>) =>
     );
     const seekbarRef = useRef<HTMLDivElement | null>(null);
     const [playingTrackPosition, setPlayingTrackPosition] = useState<number>(0);
+    const [volumebarVisible, setVolumebarVisible] = useState(false);
+    const volumebarRef = useRef<HTMLDivElement | null>(null);
+    const [volume, setVolume] = useState(0.5);
     const height100vh = use100vh();
     const [savePlaylistLoading, setSavePlaylistLoading] = useState<boolean>(false);
     const [playlistId, setPlaylistId] = useState<string>();
@@ -118,7 +121,7 @@ const Index = ({ loginPath }: InferGetStaticPropsType<typeof getStaticProps>) =>
                     getOAuthToken: async (cb) => {
                         cb(loginData.accessToken as string);
                     },
-                    volume: 0.5
+                    volume
                 });
                 player.addListener('ready', ({ device_id }) => {
                     setDeviceId(device_id);
@@ -197,6 +200,30 @@ const Index = ({ loginPath }: InferGetStaticPropsType<typeof getStaticProps>) =>
                                         }
                                     }}
                                 />
+                                <IoVolumeMediumSharp className={styles.volumeButton} onClick={() => { setVolumebarVisible(!volumebarVisible) }} />
+                                <div
+                                    className={styles.volumebarContainer}
+                                    style={volumebarVisible ? {} : { display: 'none' }}
+                                >
+                                    <div
+                                        className={styles.volumebar}
+                                        ref={volumebarRef}
+                                        style={{ backgroundSize: `100% ${(volume / 1) * 100}%` }}
+                                        onClick={(e) => {
+                                            const mouse = e.pageY;
+                                            const rect = volumebarRef.current?.getBoundingClientRect();                                            
+                                            if (rect) {
+                                                const position = rect.bottom + window.pageYOffset;                                                
+                                                const offset = position - mouse;                                                
+                                                const height = rect?.bottom - rect?.top;                                                
+                                                const volume = offset / height;                                                
+                                                playerRef.current?.setVolume(volume);
+                                                setVolume(volume);
+                                            }
+                                        }}
+                                    />
+
+                                </div>
                             </div>
                         </div>
                     </div>
