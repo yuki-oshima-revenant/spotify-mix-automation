@@ -42,6 +42,10 @@ const Index = ({ loginPath }: InferGetStaticPropsType<typeof getStaticProps>) =>
         window.location.href = loginPath;
     }, [loginPath]);
 
+    const filterTracks = useCallback((tracks: SearchTracksRecord[]) => {
+        return tracks.filter((track) => !playlistContent.map((playlistTrack) => playlistTrack.id).includes(track.id));
+    }, [playlistContent])
+
     useEffect(() => {
         window.scrollTo({
             top: 0,
@@ -246,6 +250,7 @@ const Index = ({ loginPath }: InferGetStaticPropsType<typeof getStaticProps>) =>
                                             onChange={(e) => { setPlaylistName(e.target.value) }}
                                             value={playlistName}
                                             disabled={!(loginData && !loginError)}
+                                            spellCheck="false"
                                         />
                                         {savePlaylistLoading ? (
                                             <button disabled className={styles.save}>
@@ -342,10 +347,11 @@ const Index = ({ loginPath }: InferGetStaticPropsType<typeof getStaticProps>) =>
                                                 placeholder="Search Tracks"
                                                 onChange={(e) => { setQuery(e.target.value.replace(/　/g, ' ').split(' ')) }}
                                                 disabled={!(loginData && !loginError)}
+                                                spellCheck="false"
                                             />
                                         </div>
                                         <div className={styles.searchResultContainer} style={contentStyle(false, false, false)}>
-                                            {searchData && searchData.tracks.map((track) => {
+                                            {searchData && filterTracks(searchData.tracks).map((track) => {
                                                 return (
                                                     <TrackCard
                                                         key={track.id}
@@ -376,7 +382,7 @@ const Index = ({ loginPath }: InferGetStaticPropsType<typeof getStaticProps>) =>
                                                     <div className={styles.recommendTypeUpper}>Upper Tracks</div>
                                                 </div>
                                                 <div className={styles.recommendContent} style={contentStyle(false, true, true)}>
-                                                    {recommendData && recommendData.upperTracks.map((track) => {
+                                                    {recommendData && filterTracks(recommendData.upperTracks).map((track) => {
                                                         return (
                                                             <TrackCard
                                                                 key={track.id}
@@ -400,7 +406,7 @@ const Index = ({ loginPath }: InferGetStaticPropsType<typeof getStaticProps>) =>
                                                     <div className={styles.recommendTypeDowner}>Downer Tracks</div>
                                                 </div>
                                                 <div className={styles.recommendContent} style={contentStyle(false, true, true)}>
-                                                    {recommendData && recommendData.downerTracks.map((track) => {
+                                                    {recommendData && filterTracks(recommendData.downerTracks).map((track) => {
                                                         return (
                                                             <TrackCard
                                                                 key={track.id}
